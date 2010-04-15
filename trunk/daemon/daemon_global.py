@@ -13,7 +13,7 @@ param_global = {'debug':0,\
                 'vmlist':'vmlist.lst'}
 
 #daemon log file
-dlog = sys.stdout
+fp_dlog = sys.stdout
 
 def get_global(key):
     if param_global.has_key(key):
@@ -70,7 +70,7 @@ def start_daemon_log():
 
 
 def stop_daemon_log():
-    DAEMON_LOG = get_global('daemon_log')
+    DAEMON_LOG = get_global('is_daemon_log')
     if DAEMON_LOG == True:
         fp_dlog.close()
     else:

@@ -8,7 +8,7 @@ import os, sys, time
 import fcntl, socket, struct
 import SimpleXMLRPCServer
 
-import monitor, vminfo
+import monitor, vminfo, daemon_agent
 from daemon_global import get_global, cleanup_exit, fp_dlog
 
 ISOTIMEFMT='%Y-%m-%d %X'
@@ -37,11 +37,15 @@ def stop_vminfo():
         return False
     return True
 
+def start_monitor():
+    monitor.start_agent_monitor(vminfo.VMlist)
+    return True
+
 def start_daemon():
     vminfo.init_vmlist_from_file()
     vminfo.send_and_start_agent()
     vminfo.start_all()
-    monitor.start_agent_monitor(vminfo.VMlist)
+#    monitor.start_agent_monitor(vminfo.VMlist)
     return True
 
 #def start_monitor():
@@ -137,7 +141,7 @@ def start_daemon_server(port=51000, logfilename=''):
     server.register_introspection_functions()
     server.register_function(start_daemon, 'start_daemon')
     server.register_function(stop_daemon, 'stop_daemon')
-#    server.register_function(start_monitor, 'start_monitor')
+    server.register_function(start_monitor, 'start_monitor')
     server.register_function(stop_monitor, 'stop_monitor')
     server.register_function(stop_vminfo, 'stop_vminfo')
     server.register_function(update_vmlist_file, 'update_vmlist_file')
@@ -145,6 +149,7 @@ def start_daemon_server(port=51000, logfilename=''):
     server.register_function(del_vm, 'del_vm')
     server.register_function(get_vm_status, 'get_vm_status')
     server.register_function(get_vm_runtime_info, 'get_vm_runtime_info')
+    server.register_function(daemon_agent.get_perf_info, 'get_perf_info')
     try:
         print >> fp_dlog, 'Starting daemon server...'
         server.serve_forever()
