@@ -87,8 +87,9 @@ class PerfInfo:
         except:
             pass
         self.cpu_iowait_time = (iowait - self.cpu_iowait)
+        cpu_busy_time = (total - self.cpu_total) - (idle - self.cpu_idle)
         try:
-            self.cpu_iowait_rate = (self.cpu_iowait_time / (idle - self.cpu_idle)) * 100
+            self.cpu_iowait_rate = (self.cpu_iowait_time / cpu_busy_time) * 100
         except:
             pass
         self.cpu_idle = idle

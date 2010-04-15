@@ -28,7 +28,7 @@ def sigint_handler(signum, frame):
 def main():
     signal.signal(signal.SIGINT, sigint_handler)
 #    daemon_global.start_daemon_log()
-    if len(argv) <= 1:
+    if len(argv) == 0:
 #        vminfo.init_vmlist_from_file()
 #        vminfo.start_all()
 #        monitor.start_agent_monitor(vminfo.VMlist)
@@ -37,14 +37,14 @@ def main():
         print 'no function specified'
         os._exit(0)
     daemon_global.global_init()
-    if argv[1] == 'start_agent':
+    if argv[0] == 'start_agent':
         vminfo.init_vmlist_from_file()
         vminfo.send_and_start_agent()
-    if argv[1] == 'stop_agent':
+    if argv[0] == 'stop_agent':
         vminfo.init_vmlist_from_file()
         for name, vm in vminfo.VMlist.items():
             vm.stop()
-    if argv[1] == 'start_mon':
+    if argv[0] == 'start_mon':
         vminfo.init_vmlist_from_file()
         vminfo.start_all()
         monitor.start_agent_monitor(vminfo.VMlist)
@@ -52,7 +52,7 @@ def main():
         print >> daemon_global.fp_dlog, '0 load test for 600 sec'
 #        print monitor.threadlist
         time.sleep(6000)
-    if argv[1] == 'start_mon_adj':
+    if argv[0] == 'start_mon_adj':
         vminfo.init_vmlist_from_file()
         vminfo.start_all()
         monitor.start_agent_monitor(vminfo.VMlist)
@@ -61,7 +61,7 @@ def main():
         monitor.start_adjust_thread()
 #        print monitor.threadlist
         time.sleep(6000)
-    if argv[1] == 'hadoop_test_mode':
+    if argv[0] == 'hadoop_test_mode':
         print >> daemon_global.fp_dlog, 'Hadoop Test Mode'
         vminfo.init_vmlist_from_file()
         vminfo.start_all()
@@ -71,16 +71,15 @@ def main():
         time.sleep(5)
         cmdline = 'ssh 127.0.0.1 /root/hadoop/hadoop/bin/hadoop jar \
                    /root/hadoop/hadoop/hadoop-0.20.2-examples.jar \
-                   wordcount testin_data3 testout_data3_4'
+                   wordcount testin_data3 testout_data3_new1'
         print cmdline
         os.system(cmdline)
         time.sleep(10)
         print >> daemon_global.fp_dlog, 'Test end'
 #        vminfo.del_VM('cloud1')
-    if argv[1] == 'test':
+    if argv[0] == 'test':
         print >> daemon_global.fp_dlog, 'test mode'
-        time.sleep(60)
-    if argv[1] == 'server':
+    if argv[0] == 'server':
 #        vminfo.init_vmlist_from_file()
 #        vminfo.start_all()
 #        monitor.start_agent_monitor(vminfo.VMlist)
@@ -120,14 +119,19 @@ if __name__ == "__main__":
     print opts
     print argv
     for o, a in opts:
-        if o == 'd':
+        if o == '-d':
             daemon_global.set_global('is_daemonized', True)
-        elif o == 'a':
+        elif o == '-a':
             daemon_global.set_global('is_adjust', True)
-        elif o == 'm':
+        elif o == '-m':
             daemon_global.set_global('is_monitor', True)
-        elif o == 'l':
+        elif o == '-l':
             daemon_global.set_global('is_daemon_log', True)
+            
+    print daemon_global.get_global('is_daemonized')
+    print daemon_global.get_global('is_adjust')
+    print daemon_global.get_global('is_monitor')
+    print daemon_global.get_global('is_daemon_log')
     if daemon_global.get_global('is_daemonized') == True:
         daemonize.daemonize()
     main()

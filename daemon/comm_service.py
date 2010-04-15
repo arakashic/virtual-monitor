@@ -9,39 +9,46 @@ import fcntl, socket, struct
 import SimpleXMLRPCServer
 
 import monitor, vminfo, daemon_agent
-from daemon_global import get_global, cleanup_exit, fp_dlog
+#from daemon_global import daemon_global.get_global, daemon_global.cleanup_exit, daemon_global.fp_dlog
+import daemon_global
 
 ISOTIMEFMT='%Y-%m-%d %X'
 
 #basic control service
 def stop_daemon():
+    print >> daemon_global.fp_dlog, daemon_global.syb_sep
+    print >> daemon_global.fp_dlog, '[%s] Stopping daemon ' % time.strftime(ISOTIMEFMT)
     stop_monitor()
     stop_vminfo()
-    print >> fp_dlog, '[%s] Stopping daemon' % time.strftime(ISOTIMEFMT)
     server.server_close()
-    cleanup_exit()
+    daemon_global.cleanup_exit()
 
 def stop_monitor():
+    print >> daemon_global.fp_dlog, '[%s] Stopping monitors ' % time.strftime(ISOTIMEFMT)
     try:
         monitor.stop_agent_montitor()
     except:
-        print >> fp_dlog, '[%s] Failed to stop all agent monitors' % time.strftime(ISOTIMEFMT)
+        print >> daemon_global.fp_dlog, '[%s] Failed to stop all agent monitors' % time.strftime(ISOTIMEFMT)
         return False
     return True
 
 def stop_vminfo():
+    print >> daemon_global.fp_dlog, '[%s] Stopping VM info objects ' % time.strftime(ISOTIMEFMT)
     try:
         vminfo.stop_all()
     except:
-        print >> fp_dlog, '[%s] Failed to clean all VM info objects' % time.strftime(ISOTIMEFMT)
+        print >> daemon_global.fp_dlog, '[%s] Failed to clean all VM info objects' % time.strftime(ISOTIMEFMT)
         return False
     return True
 
 def start_monitor():
+    print >> daemon_global.fp_dlog, '[%s] Starting monitors ' % time.strftime(ISOTIMEFMT)
     monitor.start_agent_monitor(vminfo.VMlist)
     return True
 
 def start_daemon():
+    print >> daemon_global.fp_dlog, daemon_global.syb_sep
+    print >> daemon_global.fp_dlog, '[%s] Starting daemon ' % time.strftime(ISOTIMEFMT)
     vminfo.init_vmlist_from_file()
     vminfo.send_and_start_agent()
     vminfo.start_all()
@@ -53,12 +60,14 @@ def start_daemon():
 #vm sys manipulation
 
 def update_vmlist_file(vmlist_lines):
-    vmlistfile = get_global('vmlist')
+    print >> daemon_global.fp_dlog, daemon_global.syb_sep
+    print >> daemon_global.fp_dlog, '[%s] Updating VM list' % time.strftime(ISOTIMEFMT)
+    vmlistfile = daemon_global.get_global('vmlist')
     try:
         fp = open(vmlistfile, 'w')
     except:
-        print >> fp_dlog, '[%s] Cannot update vmlist: open file failed' % time.strftime(ISOTIMEFMT)
-        print >> fp_dlog, '[%s] Daemon terminated' % time.strftime(ISOTIMEFMT)
+        print >> daemon_global.fp_dlog, '[%s] Cannot update vmlist: open file failed' % time.strftime(ISOTIMEFMT)
+        print >> daemon_global.fp_dlog, '[%s] Daemon terminated' % time.strftime(ISOTIMEFMT)
         return False
     #update lines
     for line in vmlist_lines:
@@ -70,12 +79,12 @@ def update_vmlist_file(vmlist_lines):
 def add_vm(vm):
     """vm here is a dict contains ip, name, uuid, mac, mem_mex, vcpu_max"""
     #start vm agent
-    print >> fp_dlog, '[%s] Starting VM agent on %s' %(time.strftime(ISOTIMEFMT), vm.ip)
+    print >> daemon_global.fp_dlog, '[%s] Starting VM agent on %s' %(time.strftime(ISOTIMEFMT), vm.ip)
     cmdline = 'scp -r agent %s:/root' % vm.ip
-    print >> fp_dlog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
+    print >> daemon_global.fp_dlog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
     os.system(cmdline)
     cmdline = 'ssh %s python /root/agent/agent_main.py' % vm.ip
-    print >> fp_dlog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
+    print >> daemon_global.fp_dlog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
     os.system(cmdline)
     #start vminfo and monitor
     vminfo.add_VM(vm)
@@ -137,6 +146,7 @@ def start_daemon_server(port=51000, logfilename=''):
 #        sys.stderr = fp_log
     global server
     ip = get_ip_address()
+    daemon_global.set_global('pm_ip', ip)
     server = XMLRPC_Server((ip, port))
     server.register_introspection_functions()
     server.register_function(start_daemon, 'start_daemon')
@@ -151,7 +161,7 @@ def start_daemon_server(port=51000, logfilename=''):
     server.register_function(get_vm_runtime_info, 'get_vm_runtime_info')
     server.register_function(daemon_agent.get_perf_info, 'get_perf_info')
     try:
-        print >> fp_dlog, 'Starting daemon server...'
+        print >> daemon_global.fp_dlog, 'Starting daemon server...'
         server.serve_forever()
     finally:
 	server.server_close()
@@ -160,7 +170,7 @@ def start_daemon_server(port=51000, logfilename=''):
 #        fp_log.close()
 
 def server_init():
-    port = get_global('srv_port')
+    port = daemon_global.get_global('srv_port')
     print port
     start_daemon_server(port)
 

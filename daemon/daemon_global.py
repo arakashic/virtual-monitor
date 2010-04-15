@@ -6,7 +6,7 @@ __date__ ="$Mar 22, 2010 5:32:37 PM$"
 
 import os, sys
 import re
-import socket, struct, fcntl
+#import socket, struct, fcntl
 
 param_global = {'debug':0,\
                 'data_dir':'data',\
@@ -14,6 +14,7 @@ param_global = {'debug':0,\
 
 #daemon log file
 fp_dlog = sys.stdout
+syb_sep = '------------------------------------------------------------'
 
 def get_global(key):
     if param_global.has_key(key):
@@ -31,12 +32,12 @@ def del_global(key):
     else:
         return False
 
-def get_ip_address(ifname='eth0'):
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    local_ip = socket.inet_ntoa(\
-        fcntl.ioctl(s.fileno(), 0x8915,\
-            struct.pack('256s', ifname[:15]))[20:24])
-    return local_ip
+#def get_ip_address(ifname='eth0'):
+#    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+#    local_ip = socket.inet_ntoa(\
+#        fcntl.ioctl(s.fileno(), 0x8915,\
+#            struct.pack('256s', ifname[:15]))[20:24])
+#    return local_ip
 
 def read_daemon_config(filename='daemon.conf'):
     fp = open(filename, 'r')
@@ -60,9 +61,11 @@ def read_daemon_config(filename='daemon.conf'):
             continue
 
 def start_daemon_log():
-#    global fp_log
+    global fp_dlog
+    from daemon_global import fp_dlog
     DAEMON_LOG = get_global('is_daemon_log')
     if DAEMON_LOG == True:
+        print 'open log'
         logfile = param_global['logfile']
         fp_dlog = open(logfile, 'a+')
     else:
@@ -70,11 +73,12 @@ def start_daemon_log():
 
 
 def stop_daemon_log():
-    DAEMON_LOG = get_global('is_daemon_log')
-    if DAEMON_LOG == True:
-        fp_dlog.close()
-    else:
+    global fp_dlog
+    from daemon_global import fp_dlog
+    if fp_dlog == sys.stdout:
         pass
+    else:
+        fp_dlog.close()
 
 def global_init():
     cwd = os.path.abspath(__file__)
@@ -84,11 +88,13 @@ def global_init():
     read_daemon_config()
     
     start_daemon_log()
+    print >> fp_dlog, '===========================<<Daemon Started>>==========================='
+    print >> fp_dlog, param_global
 #    print >> fp_dlog, 'test'
-    try:
-        param_global['pm_ip'] = get_ip_address()
-    except:
-        print >> fp_dlog, 'Exception when getting PM ip'
+#    try:
+#        param_global['pm_ip'] = get_ip_address()
+#    except:
+#        print >> fp_dlog, 'Exception when getting PM ip'
     
     data_path = os.path.join(cwd, param_global['data_dir'])
     try:
@@ -97,8 +103,9 @@ def global_init():
         pass
 
 def cleanup_exit():
+    print >> fp_dlog, '===========================<<Daemon Exited>>============================'
     stop_daemon_log()
-    print >> fp_dlog, 'exit'
+    print 'exit'
     os._exit(0)
 
 
