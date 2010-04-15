@@ -10,7 +10,8 @@ import xmlrpclib
 
 import perfinfo
 
-from daemon_global import get_global, set_global, fp_dlog
+#from daemon_global import daemon_global.get_global, daemon_global.set_global, daemon_global.fp_dlog
+import daemon_global
 
 ISOTIMEFMT='%Y-%m-%d %X'
 
@@ -40,7 +41,7 @@ class VMinfo:
     def startlog(self, logfile='log', rawfile='raw'):
         """call when you need to write to logs instead of stdout"""
         #make data dir first
-        data_loc = get_global('data_dir')
+        data_loc = daemon_global.get_global('data_dir')
         data_loc = 'data'
         data_dir = os.path.join(data_loc, self.ip)
         try:
@@ -52,13 +53,13 @@ class VMinfo:
         try:
             self.fp_log = open(self.log, 'a+')
         except:
-            print >> fp_dlog, '[%s][%s] Failed to open %s' \
+            print >> daemon_global.fp_dlog, '[%s][%s] Failed to open %s' \
                 % (time.strftime(ISOTIMEFMT), self.ip, self.log)
         self.raw = os.path.join(data_dir, rawfile)
         try:
             self.fp_raw = open(self.raw, 'a+')
         except:
-            print >> fp_dlog, '[%s][%s] Failed to open %s' \
+            print >> daemon_global.fp_dlog, '[%s][%s] Failed to open %s' \
                 % (time.strftime(ISOTIMEFMT), self.ip, self.raw)
         self.out = os.path.join(data_dir, 'output')
         try:
@@ -66,7 +67,7 @@ class VMinfo:
             outputline = "timestamp,cpu_rate,cpu_iowait_rate,cpu_iowait_time,mem_ratio,mem_used,mem_total,pf_rate,disk_read(KB),disk_write(KB),net_recv(B),net_trans(B)"
             print >> self.fp_out, outputline
         except:
-            print >> fp_dlog, '[%s][%s] Failed to open %s' \
+            print >> daemon_global.fp_dlog, '[%s][%s] Failed to open %s' \
                 % (time.strftime(ISOTIMEFMT), self.ip, self.out)
         return True
 
@@ -128,49 +129,59 @@ class VMinfo:
 #public structures
 
 VMlist = {}
-set_global('vminfo', VMlist)
+daemon_global.set_global('vminfo', VMlist)
 
 def init_vmlist_from_file():
-    filename = get_global('vmlist')
+    filename = daemon_global.get_global('vmlist')
     fp = open(filename, 'r')
     lines = fp.readlines()
     fp.close()
+    print >> daemon_global.fp_dlog, daemon_global.syb_sep
+    print >> daemon_global.fp_dlog, 'Initial VM info object'
     for line in lines:
         if line[0] == '#':
             continue
         vm_conf = line.strip().split(' ')
-        print vm_conf
+        print >> daemon_global.fp_dlog, vm_conf
         vm = VMinfo(ip=vm_conf[0], name=vm_conf[1], uuid=vm_conf[2], \
                     mac=vm_conf[3], mem_max=int(vm_conf[4]), vcpu_max=int(vm_conf[5]))
         VMlist[vm.name] = vm
 
 def send_and_start_agent():
     for name, vm in VMlist.items():
-        print >> fp_dlog, '[%s] Starting VM agent on %s' %(time.strftime(ISOTIMEFMT), vm.ip)
+        print >> daemon_global.fp_dlog, daemon_global.syb_sep
+        print >> daemon_global.fp_dlog, '[%s] Starting VM agent on %s' %(time.strftime(ISOTIMEFMT), vm.ip)
         cmdline = 'scp -r agent %s:/root' % vm.ip
-        print >> fp_dlog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
+        print >> daemon_global.fp_dlog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
         os.system(cmdline)
         cmdline = 'ssh %s python /root/agent/agent_main.py' % vm.ip
-        print >> fp_dlog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
+        print >> daemon_global.fp_dlog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
         os.system(cmdline)
+    print >> daemon_global.fp_dlog, daemon_global.syb_sep
 
 def start_all():
     for name, vm in VMlist.items():
         #must use vm.startlog() to make sure data dir is created
         vm.startlog()
+        print >> daemon_global.fp_dlog, '[%s] Agent log of %s started' % (time.strftime(ISOTIMEFMT), name)
         vm.start()
 
 def stop_all():
     for name, vm in VMlist.items():
+        print >> daemon_global.fp_dlog, daemon_global.syb_sep
+        print >> daemon_global.fp_dlog, '[%s] Stopping VM agent on %s' % (time.strftime(ISOTIMEFMT), name)
         vm.stop()
         vm.stoplog()
+        print >> daemon_global.fp_dlog, '[%s] Agent log of %s stopped' % (time.strftime(ISOTIMEFMT), name)
         try:
             vm.service.stop_agent()
         except:
             pass
+        print >> daemon_global.fp_dlog, '[%s] Agent on %s stopped' % (time.strftime(ISOTIMEFMT), name)
+    print >> daemon_global.fp_dlog, daemon_global.syb_sep
 
 def add_VM(vminfo):
-    vminit_filename = get_global('vmlist')
+    vminit_filename = daemon_global.get_global('vmlist')
     fp = open(vminit_filename, 'a+')
     outputline = '%s %s %s %s %d %d' % (vminfo['ip'], vminfo['name'], vminfo['uuid'],\
                                           vminfo['mac'], vminfo['mem_max'], vminfo['vcpu_max'])
@@ -181,24 +192,27 @@ def add_VM(vminfo):
     VMlist[vminfo['name']] = vm
 
 #    #start vm agent
-#    print >> fp_dlog, '[%s] Starting VM agent on %s' %(time.strftime(ISOTIMEFMT), vm.ip)
+#    print >> daemon_global.fp_dlog, '[%s] Starting VM agent on %s' %(time.strftime(ISOTIMEFMT), vm.ip)
 #    cmdline = 'scp -r agent %s:/root' % vm.ip
-#    print >> fp_dlog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
+#    print >> daemon_global.fp_dlog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
 #    os.system(cmdline)
 #    cmdline = 'ssh %s python /root/agent/agent_main.py' % vm.ip
-#    print >> fp_dlog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
+#    print >> daemon_global.fp_dlog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
 #    os.system(cmdline)
     #start vminfo
     vm.startlog()
     vm.start()
 
-    print >> fp_dlog, '[%s] Added new VM %s' % (time.strftime(ISOTIMEFMT), str(outputline.split(' ')))
+    print >> daemon_global.fp_dlog, daemon_global.syb_sep
+    print >> daemon_global.fp_dlog, '[%s] Added new VM %s' % (time.strftime(ISOTIMEFMT), str(outputline.split(' ')))
+    print >> daemon_global.fp_dlog, '[%s] Config: %s' % (time.strftime(ISOTIMEFMT), str(vminfo))
+    print >> daemon_global.fp_dlog, daemon_global.syb_sep
     return 0
 
 def del_VM(vmname):
     vm = VMlist[vmname]
     #stop monitor thread
-    threadlist = get_global('localthread')
+    threadlist = daemon_global.get_global('localthread')
     thread = threadlist[vmname]
     try:
         thread.join()
@@ -211,14 +225,17 @@ def del_VM(vmname):
     #delete vm structure
     del VMlist[vmname]
     #write to file
-    vminit_filename = get_global('vmlist')
+    vminit_filename = daemon_global.get_global('vmlist')
     fp = open(vminit_filename, 'w')
     for name, vm in VMlist.items():
         outputline = '%s %s %s %s %d %d' % (vm.ip, vm.name, vm.uuid, vm.mac,\
                                             vm.mem_max, vm.vcpu_max)
         fp.write(outputline + '\n')
     fp.close()
-    print >> fp_dlog, '[%s] Removed VM %s' % (time.strftime(ISOTIMEFMT), vmname)
+
+    print >> daemon_global.fp_dlog, daemon_global.syb_sep
+    print >> daemon_global.fp_dlog, '[%s] Removed VM %s' % (time.strftime(ISOTIMEFMT), vmname)
+    print >> daemon_global.fp_dlog, daemon_global.syb_sep
     return 0
 
 

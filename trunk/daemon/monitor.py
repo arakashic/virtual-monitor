@@ -8,7 +8,7 @@ import os, time
 import threading
 
 import vminfo, res_adjust
-from daemon_global import set_global, get_global, fp_dlog
+import daemon_global
 
 #import stat.stats
 
@@ -32,7 +32,7 @@ class AgentHeartBeat(threading.Thread):
                 try:
                     vm.service.heart_beat()
                 except:
-                    print >> fp_dlog, '[%s] VM %s(%s) is lost' % (time.strftime(ISOTIMEFMT), name, vm.ip)
+                    print >> daemon_global.fp_dlog, '[%s] VM %s(%s) is lost' % (time.strftime(ISOTIMEFMT), name, vm.ip)
         return 0
 
     def join(self, timeout = None):
@@ -50,25 +50,25 @@ class VM_Monitor(threading.Thread):
         self.stopevent = threading.Event()
         ret = self.vm.update_perf_info()
         if ret == -2:
-            print >> fp_dlog, '[%s] %s is missing' % (time.strftime(ISOTIMEFMT), self.vm.name)
+            print >> daemon_global.fp_dlog, '[%s] %s is missing' % (time.strftime(ISOTIMEFMT), self.vm.name)
             return ret
         elif ret == -1:
-            print >> fp_dlog, '[%s] %s is migrated' % (time.strftime(ISOTIMEFMT), self.vm.name)
+            print >> daemon_global.fp_dlog, '[%s] %s is migrated' % (time.strftime(ISOTIMEFMT), self.vm.name)
             return ret
-        print >> fp_dlog, '[%s] Monitor thread of %s started' % (time.strftime(ISOTIMEFMT), self.vm.ip)
+        print >> daemon_global.fp_dlog, '[%s] Monitor thread of %s started' % (time.strftime(ISOTIMEFMT), self.vm.ip)
         while not self.stopevent.isSet( ):
 
             ret = self.vm.update_perf_info()
             #exceptions
             if ret == -2:
-                print >> fp_dlog, '[%s] %s is missing' % (time.strftime(ISOTIMEFMT), self.vm.name)
+                print >> daemon_global.fp_dlog, '[%s] %s is missing' % (time.strftime(ISOTIMEFMT), self.vm.name)
                 return ret
             elif ret == -1:
-                print >> fp_dlog, '[%s] %s is missing' % (time.strftime(ISOTIMEFMT), self.vm.name)
+                print >> daemon_global.fp_dlog, '[%s] %s is missing' % (time.strftime(ISOTIMEFMT), self.vm.name)
                 return ret
             time.sleep(self.interval)
 
-        print >> fp_dlog, '[%s] Monitor thread of %s stopped' % (time.strftime(ISOTIMEFMT), self.vm.ip)
+        print >> daemon_global.fp_dlog, '[%s] Monitor thread of %s stopped' % (time.strftime(ISOTIMEFMT), self.vm.ip)
         return 0
 
     def join(self, timeout=None):
@@ -92,29 +92,29 @@ class AdjustThread(threading.Thread):
         self.stopevent = threading.Event()
         while not self.stopevent.isSet():
 #            for name, vm in self.vminfo_list.items():
-#                print >> fp_dlog, '[%s] %s Avg. on pf_rate: %d' % (time.strftime(ISOTIMEFMT), name,\
+#                print >> daemon_global.fp_dlog, '[%s] %s Avg. on pf_rate: %d' % (time.strftime(ISOTIMEFMT), name,\
 #                    vm.perf_info.avg_pf_rate())
             #adjust model
             for model in self.adjust_model:
                 model.update()
-                print >> fp_dlog, '[%s] %s %d, %d' % (time.strftime(ISOTIMEFMT),\
+                print >> daemon_global.fp_dlog, '[%s] %s %d, %d' % (time.strftime(ISOTIMEFMT),\
                         model.vm.name, model.avg_cpu_rate_history, model.avg_cpu_rate_now)
                 if model.is_need_adjust():
                     new_mem = model.get_new_mem()
-                    print >> fp_dlog, '[%s] %s True %dMB, %dMB' % (time.strftime(ISOTIMEFMT),\
+                    print >> daemon_global.fp_dlog, '[%s] %s True %dMB, %dMB' % (time.strftime(ISOTIMEFMT),\
                         model.vm.name, new_mem[0], new_mem[1])
                     res_adjust.set_vm_mem(model.vm.name, new_mem[0])
 
 
             time.sleep(self.interval)
-            print >> fp_dlog, ' '
+            print >> daemon_global.fp_dlog, ' '
 
     def join(self, timeout=None):
         self.stopevent.set()
         threading.Thread.join(self, timeout)
         
 threadlist = {}
-set_global('localthread', threadlist)
+daemon_global.set_global('localthread', threadlist)
 
 
 def start_agent_monitor(vmlist):
@@ -130,13 +130,13 @@ def start_agent_monitor(vmlist):
         thread.setDaemon(True)
         thread.start()
         threadlist[name] = thread
-#        print >> fp_dlog, '[%s] Monitor thread for %s started' % (time.strftime(ISOTIMEFMT), vm.name)
+#        print >> daemon_global.fp_dlog, '[%s] Monitor thread for %s started' % (time.strftime(ISOTIMEFMT), vm.name)
 
 def stop_agent_montitor():
     for name, thread in threadlist.items():
         thread.join()
         del threadlist[name]
-#        print >> fp_dlog, '[%s] Monitor thread for %s stopped' % (time.strftime(ISOTIMEFMT), name)
+#        print >> daemon_global.fp_dlog, '[%s] Monitor thread for %s stopped' % (time.strftime(ISOTIMEFMT), name)
     return True
 
 def start_agent_monitor_s(vm):
@@ -151,7 +151,7 @@ def start_agent_monitor_s(vm):
     thread.setDaemon(True)
     thread.start()
     threadlist[name] = thread
-    print >> fp_dlog, '[%s] Monitor thread for %s started' % (time.strftime(ISOTIMEFMT), vm.name)
+    print >> daemon_global.fp_dlog, '[%s] Monitor thread for %s started' % (time.strftime(ISOTIMEFMT), vm.name)
 
 def stop_agent_monitor_s(vmname):
     if not threadlist.has_key(vmname):
@@ -159,15 +159,15 @@ def stop_agent_monitor_s(vmname):
     thread = threadlist[vmname]
     thread.join()
     del threadlist[vmname]
-    print >> fp_dlog, '[$s] Monitor thread for %s stopped' % (time.strftime(ISOTIMEFMT), vmname)
+    print >> daemon_global.fp_dlog, '[$s] Monitor thread for %s stopped' % (time.strftime(ISOTIMEFMT), vmname)
 
 def start_adjust_thread():
-    vminfo_list = get_global('vminfo')
+    vminfo_list = daemon_global.get_global('vminfo')
     adjust_thread = AdjustThread(vminfo_list, 10)
     adjust_thread.setDaemon(True)
     adjust_thread.start()
     threadlist['adjust_thread'] = adjust_thread
-    print >> fp_dlog, '[%s] Adjust thread started' % time.strftime(ISOTIMEFMT)
+    print >> daemon_global.fp_dlog, '[%s] Adjust thread started' % time.strftime(ISOTIMEFMT)
 
 
 if __name__ == "__main__":
