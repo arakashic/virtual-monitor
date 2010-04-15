@@ -28,22 +28,23 @@ def sigint_handler(signum, frame):
 def main():
     signal.signal(signal.SIGINT, sigint_handler)
 #    daemon_global.start_daemon_log()
-    if len(sys.argv) <= 1:
+    if len(argv) <= 1:
 #        vminfo.init_vmlist_from_file()
 #        vminfo.start_all()
 #        monitor.start_agent_monitor(vminfo.VMlist)
 #        print monitor.threadlist
 #        time.sleep(1000)
-        sys.exit()
+        print 'no function specified'
+        os._exit(0)
     daemon_global.global_init()
-    if sys.argv[1] == 'start_agent':
+    if argv[1] == 'start_agent':
         vminfo.init_vmlist_from_file()
         vminfo.send_and_start_agent()
-    if sys.argv[1] == 'stop_agent':
+    if argv[1] == 'stop_agent':
         vminfo.init_vmlist_from_file()
         for name, vm in vminfo.VMlist.items():
             vm.stop()
-    if sys.argv[1] == 'start_mon':
+    if argv[1] == 'start_mon':
         vminfo.init_vmlist_from_file()
         vminfo.start_all()
         monitor.start_agent_monitor(vminfo.VMlist)
@@ -51,7 +52,7 @@ def main():
         print >> daemon_global.fp_dlog, '0 load test for 600 sec'
 #        print monitor.threadlist
         time.sleep(6000)
-    if sys.argv[1] == 'start_mon_adj':
+    if argv[1] == 'start_mon_adj':
         vminfo.init_vmlist_from_file()
         vminfo.start_all()
         monitor.start_agent_monitor(vminfo.VMlist)
@@ -60,7 +61,7 @@ def main():
         monitor.start_adjust_thread()
 #        print monitor.threadlist
         time.sleep(6000)
-    if sys.argv[1] == 'hadoop_test_mode':
+    if argv[1] == 'hadoop_test_mode':
         print >> daemon_global.fp_dlog, 'Hadoop Test Mode'
         vminfo.init_vmlist_from_file()
         vminfo.start_all()
@@ -76,10 +77,10 @@ def main():
         time.sleep(10)
         print >> daemon_global.fp_dlog, 'Test end'
 #        vminfo.del_VM('cloud1')
-    if sys.argv[1] == 'test':
+    if argv[1] == 'test':
         print >> daemon_global.fp_dlog, 'test mode'
         time.sleep(60)
-    if sys.argv[1] == 'server':
+    if argv[1] == 'server':
 #        vminfo.init_vmlist_from_file()
 #        vminfo.start_all()
 #        monitor.start_agent_monitor(vminfo.VMlist)
@@ -102,17 +103,22 @@ if __name__ == "__main__":
     daemon_global.set_global('is_daemonized', False)
     daemon_global.set_global('is_adjust', False)
     daemon_global.set_global('is_monitor', False)
+    daemon_global.set_global('is_daemon_log', False)
 #    if len(sys.argv) == 3 and sys.argv[2] == 'daemon':
 #        daemonize.daemonize()
 #    main()
-    shortopts = 'admsp:'
-    longopts = ['hadoop-test-mode', 'start-agent', 'stop-agent', 'test']
+    shortopts = 'adlmsp:'
+#    longopts = ['hadoop-test-mode', 'start-agent', 'stop-agent', 'test']
     test = '-a -d -m test -m -p'
+    global opts
+    global argv
     try:
-        opts, argv = getopt.getopt(test, shortopts)
+        opts, argv = getopt.getopt(sys.argv[1:], shortopts)
     except getopt.GetoptError, err:
         print str(err)
         sys.exit(2)
+    print opts
+    print argv
     for o, a in opts:
         if o == 'd':
             daemon_global.set_global('is_daemonized', True)
@@ -120,6 +126,8 @@ if __name__ == "__main__":
             daemon_global.set_global('is_adjust', True)
         elif o == 'm':
             daemon_global.set_global('is_monitor', True)
-#    if daemon_global.get_global('is_daemonized') == True:
-#        daemonize.daemonize()
-#    main()
+        elif o == 'l':
+            daemon_global.set_global('is_daemon_log', True)
+    if daemon_global.get_global('is_daemonized') == True:
+        daemonize.daemonize()
+    main()
