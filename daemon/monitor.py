@@ -84,7 +84,7 @@ class AdjustThread(threading.Thread):
 
         for name, vm in self.vminfo_list.items():
             #change this when changing AdjustModel
-            model = res_adjust.AdjustModel2(vm)
+            model = res_adjust.AdjustModel3(vm)
             model.update()
             self.adjust_model.append(model)
 
@@ -97,8 +97,7 @@ class AdjustThread(threading.Thread):
             #adjust model
             for model in self.adjust_model:
                 model.update()
-                print >> daemon_global.fp_dlog, '[%s] %s %d, %d' % (time.strftime(ISOTIMEFMT),\
-                        model.vm.name, model.avg_cpu_rate_history, model.avg_cpu_rate_now)
+                model.print_info()
                 if model.is_need_adjust():
                     new_mem = model.get_new_mem()
                     print >> daemon_global.fp_dlog, '[%s] %s True %dMB, %dMB' % (time.strftime(ISOTIMEFMT),\

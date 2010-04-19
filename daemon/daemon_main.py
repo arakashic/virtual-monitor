@@ -14,7 +14,7 @@ import daemonize
 import monitor
 import daemon_global
 import vminfo
-from comm_service import server_init
+import comm_service
 #import daemon_control
 
 ISOTIMEFMT='%Y-%m-%d %X'
@@ -22,21 +22,26 @@ ISOTIMEFMT='%Y-%m-%d %X'
 is_sigint_up = False
 def sigint_handler(signum, frame):
     is_sigint_up = True
+#    try:
+#        comm_service.stop_daemon()
+#    except:
+#        pass
     daemon_global.cleanup_exit()
     print >> daemon_global.fp_dlog, 'catched interrupt signal!'
 
 def main():
     signal.signal(signal.SIGINT, sigint_handler)
 #    daemon_global.start_daemon_log()
+    daemon_global.global_init()
     if len(argv) == 0:
 #        vminfo.init_vmlist_from_file()
 #        vminfo.start_all()
 #        monitor.start_agent_monitor(vminfo.VMlist)
 #        print monitor.threadlist
 #        time.sleep(1000)
-        print 'no function specified'
-        os._exit(0)
-    daemon_global.global_init()
+#        print 'no function specified'
+        daemon_global.cleanup_exit()
+    
     if argv[0] == 'start_agent':
         vminfo.init_vmlist_from_file()
         vminfo.send_and_start_agent()
@@ -56,8 +61,8 @@ def main():
         vminfo.init_vmlist_from_file()
         vminfo.start_all()
         monitor.start_agent_monitor(vminfo.VMlist)
-        print >> daemon_global.fp_dlog, 'Test System Ready, GO!!!'
-        print >> daemon_global.fp_dlog, '0 load test for 600 sec'
+#        print >> daemon_global.fp_dlog, 'Test System Ready, GO!!!'
+#        print >> daemon_global.fp_dlog, '0 load test for 600 sec'
         monitor.start_adjust_thread()
 #        print monitor.threadlist
         time.sleep(6000)
@@ -85,7 +90,7 @@ def main():
 #        monitor.start_agent_monitor(vminfo.VMlist)
 #        print >> daemon_global.fp_dlog, 'Test System Ready, GO!!!'
 #        print >> daemon_global.fp_dlog, '0 load test for 600 sec'
-        thread.start_new_thread(server_init,())
+        thread.start_new_thread(comm_service.server_init,())
         time.sleep(1000)
 
     daemon_global.cleanup_exit()
