@@ -76,7 +76,7 @@ def update_vmlist_file(vmlist_lines):
     fp.close()
     return True
 
-def add_vm(vm):
+def start_new_vm(vm):
     """vm here is a dict contains ip, name, uuid, mac, mem_mex, vcpu_max"""
     #start vm agent
     print >> daemon_global.fp_dlog, '[%s] Starting VM agent on %s' %(time.strftime(ISOTIMEFMT), vm.ip)
@@ -87,14 +87,14 @@ def add_vm(vm):
     print >> daemon_global.fp_dlog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
     os.system(cmdline)
     #start vminfo and monitor
-    vminfo.add_VM(vm)
+    vminfo.add_vm(vm)
     monitor.start_agent_monitor_s(vm)
     return True
 
-def del_vm(vmname):
-    vminfo.del_VM(vmname)
-    monitor.stop_agent_monitor_s(vmname)
-    return True
+#def del_vm(vmname):
+#    vminfo.del_vm(vmname)
+#    monitor.stop_agent_monitor_s(vmname)
+#    return True
 
 #information retrieve
 
