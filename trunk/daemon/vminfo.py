@@ -93,12 +93,16 @@ class VMinfo:
 
 
     def stop(self):
+        if not self.status:
+            return True
         try:
             self.status = 0
             self.service.stop_agent()
             print >> self.fp_log, '[%s] Agent stopped' % time.strftime(ISOTIMEFMT)
         except:
             pass
+        self.stoplog()
+        return True
 
     def update_perf_info(self):
         data = self.service.get_perf_info()
@@ -180,7 +184,7 @@ def stop_all():
         print >> daemon_global.fp_dlog, '[%s] Agent on %s stopped' % (time.strftime(ISOTIMEFMT), name)
     print >> daemon_global.fp_dlog, daemon_global.syb_sep
 
-def add_VM(vminfo):
+def add_vm(vminfo):
     vminit_filename = daemon_global.get_global('vmlist')
     fp = open(vminit_filename, 'a+')
     outputline = '%s %s %s %s %d %d' % (vminfo['ip'], vminfo['name'], vminfo['uuid'],\
@@ -209,17 +213,17 @@ def add_VM(vminfo):
     print >> daemon_global.fp_dlog, daemon_global.syb_sep
     return 0
 
-def del_VM(vmname):
+def del_vm(vmname):
     vm = VMlist[vmname]
     #stop monitor thread
     threadlist = daemon_global.get_global('localthread')
-    thread = threadlist[vmname]
     try:
+        thread = threadlist[vmname]
         thread.join()
+        del threadlist[vmname]
     except:
         pass
     #delete thread structure
-    del threadlist[vmname]
     #stop agent
     vm.stop()
     #delete vm structure
@@ -237,6 +241,72 @@ def del_VM(vmname):
     print >> daemon_global.fp_dlog, '[%s] Removed VM %s' % (time.strftime(ISOTIMEFMT), vmname)
     print >> daemon_global.fp_dlog, daemon_global.syb_sep
     return 0
+
+def do_migrate(vmname, destip, destport):
+    print >> daemon_global.fp_dlog, daemon_global.syb_sep
+    #set status to migrating and stop monitoring
+    writeLog('Mirgrating ' + vmname + ' to ' + destip)
+    print >> daemon_global.fp_dlog, '[%s] Migrating %s %d' % (time.strftime(ISOTIMEFMT),\
+        vmname, destip, destport)
+    vm = VMlist[vmname]
+    #stop adjust model
+
+    #stop monitor thread
+    threadlist = get_global('localthread')
+    try:
+        thread = threadlist[vmname]
+        thread.join()
+        del threadlist[vmname]
+    except:
+        pass
+    #stop vminfo
+#    vm.status = -1
+#    vm.stop()
+    #call migrate
+    cmdline = 'xm migrate -l %s %s' % (vmname, destip)
+    print daemon_global.fp_dlog, '[%s] %s' % (time.strftime(ISOTIMEFMT), cmdline)
+    ret = os.system(cmdline)
+    if ret:
+        #when failed return error
+        print daemon_global.fp_dlog, '[%s] Failed when migrating %s to %s' % (vmname, destip)
+        vm.status = -2
+    #stop vminfo
+    vm.stop()
+    #when success del current vm and create new one
+    print 'done'
+    vminfo = {}
+    vminfo['name'] = vm.name
+    vminfo['ip'] = vm.ip
+    vminfo['uuid'] = vm.uuid
+    vminfo['mac'] = vm.mac
+    vminfo['mem'] = vm.max_mem
+    vminfo['vcpu'] = vm.max_vcpu
+    #use directly transfer when has key
+    srv_loc = 'http://%s:%d' % (destip, destport)
+    service = xmlrpclib.ServerProxy(srv_loc)
+    try:
+        service.start_new_vm(vminfo)
+    except:
+        pass
+    del_vm(vmname)
+#    centerip = get_global('center')
+#    if centerip != None:
+#        loc = 'http://' + centerip + str(get_global('centerport'))
+#        service = xmlrpclib.ServerProxy(loc)
+#        try:
+#            service.TransferVMInfo(vminfo, destip, destport)
+#        except:
+#            pass
+#    else:
+#        loc = 'http://' + destip + ':' + str(destport)
+#        service = xmlrpclib.ServerProxy(loc)
+#        try:
+#            service.StartNewVM(vminfo)
+#        except:
+#            pass
+#    #del current
+#    VM_info.del_VM(vmname)
+    return True
 
 
 if __name__ == "__main__":
