@@ -42,6 +42,8 @@ class PerfInfo:
         #perf trace
         self.cpu_trace_size = 10
         self.cpu_trace = []
+        self.cpu_iowait_trace_size = 10
+        self.cpu_iowait_trace = []
 
         self.mem_trace_size = 10
         self.mem_trace = []
@@ -100,6 +102,9 @@ class PerfInfo:
             if len(self.cpu_trace) == self.cpu_trace_size:
                 self.cpu_trace.pop(0)
             self.cpu_trace.append(self.cpu_rate)
+            if len(self.cpu_iowait_trace) == self.cpu_iowait_trace_size:
+                self.cpu_iowait_trace.pop(0)
+            self.cpu_iowait_trace.append(self.cpu_iowait_rate)
 
         return self.cpu_rate
 
@@ -154,6 +159,18 @@ class PerfInfo:
         for i in self.cpu_trace:
             avg += i
         avg /= count
+        return avg
+
+    def avg_cpu_iowait_rate(self):
+        count = len(self.cpu_iowait_trace)
+        if not count:
+#            print count
+            return float(0)
+        avg = float(0)
+        for i in self.cpu_iowait_trace:
+            avg += i
+        avg /= count
+#        print avg
         return avg
 
     def avg_pf_rate(self):
