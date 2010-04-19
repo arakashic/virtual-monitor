@@ -147,6 +147,9 @@ class AdjustModel3:
         self.cpu_intensive = False
         self.mem_intensive = False
         self.io_intensive = False
+        #allocation signs
+        self.jvm_alloc = False
+        self.add_alloc_attemp = False
 
     def update(self):
         vm = self.vm
@@ -174,15 +177,23 @@ class AdjustModel3:
         """
         1. if cpu rate now and history both less than 15 percent, resize mem
         2. if cpu rate greater than 15 percent but less that 85 percent, resize mem
-        3.
+        3. if cpu iowait rate kept higher than 45% for 20sec (2 period), try to resize mem
+           when attempted and no effect, give up and seeking migration
         """
-        return False
+#        return False
         if self.avg_cpu_iowait_rate_history > 45 and self.avg_cpu_iowait_rate_now > 45:
             self.io_intensive = True
-        if self.avg_cpu_rate_history >= 15 and self.avg_cpu_rate_now < 15:
+        else:
+            self.io_intensive = False
+            
+        if int(self.avg_cpu_rate_history) not in range(15, 85):
             return True
         elif int(self.avg_cpu_rate_now) in range(15, 85):
-            return True
+            if self.avg_cpu_rate_now > self.avg_cpu_rate_history:
+                return True
+            else:
+#                self.add_alloc_attemp = False
+                return False
         else:
             return False
 
@@ -193,6 +204,8 @@ class AdjustModel3:
         1. if free mem is less than jvm needed, set the free >= jvm need
         2. if more than the essential mem size, increase the mem by add
         3. never exceed the mem_max of vm
+        4. set jvm_alloc sign when allocated jvm mem
+        5. set add_alloc_attemp sign, means add allocation attempted
         R. return value in a tuple (alloc_size, expect_size),
            friendly to migration module
         """
@@ -200,14 +213,21 @@ class AdjustModel3:
         mem_free = vm.perf_info.mem_total - vm.perf_info.mem_used
         #deallocation
         if self.avg_cpu_rate_now < 15:
+            self.cpu_intensive = False
+            self.mem_intensive = False
+            self.io_intensive = False
+            self.jvm_alloc = False
+            self.add_alloc_attemp = False
             return (128, 128)
         #set to jvm level
-        if mem_free < self.mem_jvm:
+        if not jvm_alloc and mem_free < self.mem_jvm:
             #mem free less than jvm need
             new_mem_size = int((vm.perf_info.mem_used + self.mem_jvm) / 1024)
+            self.jvm_alloc = True
         else:
             #additional mem for buffering
             new_mem_size = int(vm.perf_info.mem_total / 1024 + add)
+            self.add_alloc_attemp = True
         #do not exceed the mem-max
         if new_mem_size > vm.mem_max:
             return (vm.mem_max, new_mem_size)
