@@ -26,8 +26,8 @@ class XMLRPC_Server(SimpleXMLRPCServer.SimpleXMLRPCServer):
 #agent service
 
 def heart_beat():
-    return 1
-    
+    return True
+
 def get_perf_info():
     """time stamp is inn ctime
     cpu readings returns in total and idle count
