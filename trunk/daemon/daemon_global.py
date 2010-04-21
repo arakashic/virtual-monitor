@@ -62,7 +62,7 @@ def read_daemon_config(filename='daemon.conf'):
 
 def start_daemon_log():
     global fp_dlog
-    from daemon_global import fp_dlog
+#    from daemon_global import fp_dlog
     DAEMON_LOG = get_global('is_daemon_log')
     if DAEMON_LOG == True:
         print 'open log'
@@ -74,7 +74,7 @@ def start_daemon_log():
 
 def stop_daemon_log():
     global fp_dlog
-    from daemon_global import fp_dlog
+#    from daemon_global import fp_dlog
     if fp_dlog == sys.stdout:
         pass
     else:
