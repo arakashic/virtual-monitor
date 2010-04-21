@@ -90,8 +90,6 @@ def get_node_status():
             node_status[name] = 'Stopped'
         elif node.status == 1:
             node_status[name] = 'Running'
-        elif node.status == 2:
-            node_status[name] = 'Migrating'
         else:
             node_status[name] = 'Error/Missing'
     return node_status

@@ -13,6 +13,7 @@ param_global = {'debug':0,\
                 'nodelist':'nodelist.lst'}
 
 fp_clog = sys.stdout
+syb_sep = '------------------------------------------------------------'
 
 def get_global(key):
     if param_global.has_key(key):
