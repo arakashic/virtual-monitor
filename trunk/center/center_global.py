@@ -12,6 +12,8 @@ param_global = {'debug':0,\
                 'data_dir':'data',\
                 'nodelist':'nodelist.lst'}
 
+fp_clog = sys.stdout
+
 def get_global(key):
     if param_global.has_key(key):
         return param_global[key]
@@ -60,9 +62,22 @@ def read_center_config(filename='center.conf'):
             continue
 
 def start_center_log():
-    logfile = param_global['logfile']
-    fp_log = open(logfile, 'a+')
-    sys.stdout = fp_log
+    global fp_clog
+    CENTER_LOG = get_global('is_center_log')
+    if CENTER_LOG:
+#        print 'open log'
+        logfile = param_global['logfile']
+        fp_clog = open(logfile, 'a+')
+    else:
+        fp_clog = sys.stdout
+    
+
+def stop_center_log():
+    global fp_clog
+    if fp_clog == sys.stdout
+        pass
+    else:
+        fp_clog.close()
 
 def global_init():
     cwd = os.path.abspath(__file__)
@@ -71,7 +86,9 @@ def global_init():
     os.chdir(cwd)
     read_center_config()
     
-#    start_center_log()
+    start_center_log()
+    print >> fp_clog, '===========================<<Center Started>>==========================='
+    print >> fp_clog, param_global
 #    try:
 #        param_global['pm_ip'] = get_ip_address()
 #    except:
@@ -82,6 +99,13 @@ def global_init():
         os.mkdir(data_path)
     except:
         pass
+
+
+def cleanup_exit():
+    print >> fp_clog, '===========================<<Center Exited>>============================'
+    stop_center_log()
+    print 'exit'
+    os._exit(0)
 
 
 if __name__ == "__main__":

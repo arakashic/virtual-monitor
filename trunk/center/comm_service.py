@@ -9,14 +9,14 @@ import fcntl, socket, struct
 import SimpleXMLRPCServer
 
 import monitor, nodeinfo
-from center_global import get_global
+import center_global
 
 ISOTIMEFMT='%Y-%m-%d %X'
 
 def stop_center():
     stop_monitor()
     stop_nodeinfo()
-    print '[%s] Stopping daemon' % time.strftime(ISOTIMEFMT)
+    print >> center_global.fp_clog, '[%s] Stopping daemon' % time.strftime(ISOTIMEFMT)
     server.server_close()
     sys.exit()
 
@@ -24,13 +24,13 @@ def stop_monitor():
     try:
         monitor.stop_daemon_montitor()
     except:
-        print '[%s] Failed to stop all daemon monitors' % time.strftime(ISOTIMEFMT)
+        print >> center_global.fp_clog, '[%s] Failed to stop all daemon monitors' % time.strftime(ISOTIMEFMT)
 
 def stop_nodeinfo():
     try:
         nodeinfo.stop_all()
     except:
-        print '[%s] Failed to clean all node info objects' % time.strftime(ISOTIMEFMT)
+        print >> center_global.fp_clog, '[%s] Failed to clean all node info objects' % time.strftime(ISOTIMEFMT)
 
 def start_monitor():
     monitor.start_daemon_monitor(nodeinfo.nodelist)
@@ -51,12 +51,12 @@ def start_center():
 #node sys manipulation
 
 #def update_nodelist_file(nodelist_lines):
-#    nodelistfile = get_global('nodelist')
+#    nodelistfile = center_global.get_global('nodelist')
 #    try:
 #        fp = open(nodelistfile, 'w')
 #    except:
-#        print '[%s] Cannot update nodelist: open file failed' % time.strftime(ISOTIMEFMT)
-#        print '[%s] Daemon terminated' % time.strftime(ISOTIMEFMT)
+#        print >> center_global.fp_clog, '[%s] Cannot update nodelist: open file failed' % time.strftime(ISOTIMEFMT)
+#        print >> center_global.fp_clog, '[%s] Daemon terminated' % time.strftime(ISOTIMEFMT)
 #        sys.exit()
 #    #update lines
 #    for line in nodelist_lines:
@@ -66,12 +66,12 @@ def start_center():
 def add_node(node):
     """node here is a dict contains ip, name, uuid, mac, mem_mex, cpu_max"""
     #start node daemon
-    print '[%s] Starting node daemon on %s' %(time.strftime(ISOTIMEFMT), node.ip)
+    print >> center_global.fp_clog, '[%s] Starting node daemon on %s' %(time.strftime(ISOTIMEFMT), node.ip)
     cmdline = 'scp -r daemon %s:/root' % node.ip
-    print '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
+    print >> center_global.fp_clog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
     os.system(cmdline)
     cmdline = 'ssh %s python /root/daemon/daemon_main.py' % node.ip
-    print '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
+    print >> center_global.fp_clog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
     os.system(cmdline)
     #start nodeinfo and monitor
     nodeinfo.add_node(node)
@@ -144,7 +144,7 @@ def start_center_server(port=8080, logfilename=''):
 #    server.register_function(get_vm_runtime_info, 'get_vm_runtime_info')
 #    server.register_function(center_agent.get_perf_info, 'get_perf_info')
     try:
-        print 'Starting center server...'
+        print >> center_global.fp_clog, 'Starting center server...'
         server.serve_forever()
     finally:
 	server.server_close()
@@ -153,7 +153,7 @@ def start_center_server(port=8080, logfilename=''):
 #        fp_log.close()
 
 def server_init():
-    port = get_global('srv_port')
+    port = center_global.get_global('srv_port')
     start_center_server(port)
 
 

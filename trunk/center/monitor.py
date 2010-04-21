@@ -8,7 +8,7 @@ import os, time
 import threading
 
 import nodeinfo
-from center_global import get_global, set_global
+import center_global
 
 ISOTIMEFMT='%Y-%m-%d %X'
 
@@ -29,7 +29,7 @@ class DaemonHeartBeat(threading.Thread):
                 try:
                     vm.service.heart_beat()
                 except:
-                    print '[%s] Daemon %s(%s) is lost' % (time.strftime(ISOTIMEFMT), name, vm.ip)
+                    print >> center_global.fp_clog, '[%s] Daemon %s(%s) is lost' % (time.strftime(ISOTIMEFMT), name, vm.ip)
         return 0
 
     def join(self, timeout = None):
@@ -47,25 +47,25 @@ class Daemon_Monitor(threading.Thread):
         self.stopevent = threading.Event()
         ret = self.node.update_perf_info()
         if ret == -2:
-            print '[%s] %s is missing' % (time.strftime(ISOTIMEFMT), self.node.name)
+            print >> center_global.fp_clog, '[%s] %s is missing' % (time.strftime(ISOTIMEFMT), self.node.name)
             return ret
         elif ret == -1:
-            print '[%s] %s is migrated' % (time.strftime(ISOTIMEFMT), self.node.name)
+            print >> center_global.fp_clog, '[%s] %s is migrated' % (time.strftime(ISOTIMEFMT), self.node.name)
             return ret
-        print '[%s] Monitor thread of %s started' % (time.strftime(ISOTIMEFMT), self.node.ip)
+        print >> center_global.fp_clog, '[%s] Monitor thread of %s started' % (time.strftime(ISOTIMEFMT), self.node.ip)
         while not self.stopevent.isSet( ):
 
             ret = self.node.update_perf_info()
             #exceptions
             if ret == -2:
-                print '[%s] %s is missing' % (time.strftime(ISOTIMEFMT), self.node.name)
+                print >> center_global.fp_clog, '[%s] %s is missing' % (time.strftime(ISOTIMEFMT), self.node.name)
                 return ret
             elif ret == -1:
-                print '[%s] %s is missing' % (time.strftime(ISOTIMEFMT), self.node.name)
+                print >> center_global.fp_clog, '[%s] %s is missing' % (time.strftime(ISOTIMEFMT), self.node.name)
                 return ret
             time.sleep(self.interval)
 
-        print '[%s] Monitor thread of %s stopped' % (time.strftime(ISOTIMEFMT), self.node.ip)
+        print >> center_global.fp_clog, '[%s] Monitor thread of %s stopped' % (time.strftime(ISOTIMEFMT), self.node.ip)
         return 0
 
     def join(self, timeout=None):
@@ -73,7 +73,7 @@ class Daemon_Monitor(threading.Thread):
         threading.Thread.join(self, timeout)
 
 threadlist = {}
-set_global('localthread', threadlist)
+center_global.set_global('localthread', threadlist)
 
 
 def start_daemon_monitor(nodelist):
@@ -89,13 +89,13 @@ def start_daemon_monitor(nodelist):
         thread.setDaemon(True)
         thread.start()
         threadlist[name] = thread
-#        print '[%s] Monitor thread for %s started' % (time.strftime(ISOTIMEFMT), node.name)
+#        print >> center_global.fp_clog, '[%s] Monitor thread for %s started' % (time.strftime(ISOTIMEFMT), node.name)
 
 def stop_daemon_montitor():
     for name, thread in threadlist.items():
         thread.join()
         del threadlist[name]
-#        print '[%s] Monitor thread for %s stopped' % (time.strftime(ISOTIMEFMT), name)
+#        print >> center_global.fp_clog, '[%s] Monitor thread for %s stopped' % (time.strftime(ISOTIMEFMT), name)
     return True
 
 def start_daemon_monitor_s(node):
@@ -110,7 +110,7 @@ def start_daemon_monitor_s(node):
     thread.setDaemon(True)
     thread.start()
     threadlist[name] = thread
-    print '[%s] Monitor thread for %s started' % (time.strftime(ISOTIMEFMT), node.name)
+    print >> center_global.fp_clog, '[%s] Monitor thread for %s started' % (time.strftime(ISOTIMEFMT), node.name)
 
 def stop_daemon_monitor_s(nodename):
     if not threadlist.has_key(nodename):
@@ -118,7 +118,7 @@ def stop_daemon_monitor_s(nodename):
     thread = threadlist[nodename]
     thread.join()
     del threadlist[nodename]
-    print '[%s] Monitor thread for %s stopped' % (time.strftime(ISOTIMEFMT), nodename)
+    print >> center_global.fp_clog, '[%s] Monitor thread for %s stopped' % (time.strftime(ISOTIMEFMT), nodename)
 
 
 if __name__ == "__main__":
