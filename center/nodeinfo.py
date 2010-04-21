@@ -10,7 +10,7 @@ import xmlrpclib
 
 import node_perfinfo
 
-from center_global import get_global, set_global
+import center_global
 
 ISOTIMEFMT='%Y-%m-%d %X'
 
@@ -40,7 +40,7 @@ class Nodeinfo:
     def startlog(self, logfile='log', rawfile='raw'):
         """call when you need to write to logs instead of stdout"""
         #make data dir first
-        data_loc = get_global('data_dir')
+        data_loc = center_global.get_global('data_dir')
         data_loc = 'data'
         data_dir = os.path.join(data_loc, self.ip)
         try:
@@ -52,13 +52,13 @@ class Nodeinfo:
         try:
             self.fp_log = open(self.log, 'a+')
         except:
-            print '[%s][%s] Failed to open %s' \
+            print >> center_global.fp_clog, '[%s][%s] Failed to open %s' \
                 % (time.strftime(ISOTIMEFMT), self.ip, self.log)
         self.raw = os.path.join(data_dir, rawfile)
         try:
             self.fp_raw = open(self.raw, 'a+')
         except:
-            print '[%s][%s] Failed to open %s' \
+            print >> center_global.fp_clog, '[%s][%s] Failed to open %s' \
                 % (time.strftime(ISOTIMEFMT), self.ip, self.raw)
         self.out = os.path.join(data_dir, 'output')
         try:
@@ -66,7 +66,7 @@ class Nodeinfo:
             outputline = "timestamp,cpu_rate,cpu_iowait_rate,cpu_iowait_time,mem_ratio,mem_used,mem_total,pf_rate,disk_read(KB),disk_write(KB),net_recv(B),net_trans(B)"
             print >> self.fp_out, outputline
         except:
-            print '[%s][%s] Failed to open %s' \
+            print >> center_global.fp_clog, '[%s][%s] Failed to open %s' \
                 % (time.strftime(ISOTIMEFMT), self.ip, self.out)
         return True
 
@@ -124,10 +124,10 @@ class Nodeinfo:
 #public structures
 
 nodelist = {}
-set_global('nodeinfo', nodelist)
+center_global.set_global('nodeinfo', nodelist)
 
 def init_nodelist_from_file():
-    filename = get_global('nodelist')
+    filename = center_global.get_global('nodelist')
     fp = open(filename, 'r')
     lines = fp.readlines()
     fp.close()
@@ -142,16 +142,16 @@ def init_nodelist_from_file():
 
 def send_and_start_daemon():
     for name, node in nodelist.items():
-        print '[%s] Starting node daemon on %s' %(time.strftime(ISOTIMEFMT), node.ip)
+        print >> center_global.fp_clog, '[%s] Starting node daemon on %s' %(time.strftime(ISOTIMEFMT), node.ip)
         cmdline = 'scp -r daemon %s:/root' % node.ip
-        print '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
+        print >> center_global.fp_clog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
         os.system(cmdline)
         cmdline = 'ssh %s python /root/daemon/daemon_main.py -dl server' % node.ip
-        print '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
+        print >> center_global.fp_clog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
         os.system(cmdline)
 
 def init_vmlist_on_node():
-    vm_nodelist = get_global('vm-nodelist')
+    vm_nodelist = center_global.get_global('vm-nodelist')
 #    vm_nodelist = 'vm_nodelist.lst'
 #    print vm_nodelist
     fp = open(vm_nodelist, 'r')
@@ -186,7 +186,7 @@ def stop_all():
             pass
 
 def add_node(nodeinfo):
-    nodeinit_filename = get_global('nodelist')
+    nodeinit_filename = center_global.get_global('nodelist')
     fp = open(nodeinit_filename, 'a+')
     outputline = '%s %s %s %s %d %d' % (nodeinfo['ip'], nodeinfo['name'], nodeinfo['uuid'],\
                                           nodeinfo['mac'], nodeinfo['mem_max'], nodeinfo['cpu_max'])
@@ -197,24 +197,24 @@ def add_node(nodeinfo):
     nodelist[nodeinfo['name']] = node
 
 #    #start node daemon
-#    print '[%s] Starting node daemon on %s' %(time.strftime(ISOTIMEFMT), vm.ip)
+#    print >> center_global.fp_clog, '[%s] Starting node daemon on %s' %(time.strftime(ISOTIMEFMT), vm.ip)
 #    cmdline = 'scp -r daemon %s:/root' % vm.ip
-#    print '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
+#    print >> center_global.fp_clog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
 #    os.system(cmdline)
 #    cmdline = 'ssh %s python /root/daemon/daemon_main.py' % vm.ip
-#    print '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
+#    print >> center_global.fp_clog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
 #    os.system(cmdline)
     #start vminfo
     node.startlog()
     node.start()
 
-    print '[%s] Added new node %s' % (time.strftime(ISOTIMEFMT), str(outputline.split(' ')))
+    print >> center_global.fp_clog, '[%s] Added new node %s' % (time.strftime(ISOTIMEFMT), str(outputline.split(' ')))
     return 0
 
 def del_node(nodename):
     node = nodelist[nodename]
     #stop monitor thread
-    threadlist = get_global('localthread')
+    threadlist = center_global.get_global('localthread')
     thread = threadlist[nodename]
     try:
         thread.join()
@@ -227,14 +227,14 @@ def del_node(nodename):
     #delete node structure
     del nodelist[nodename]
     #write to file
-    nodeinit_filename = get_global('nodelist')
+    nodeinit_filename = center_global.get_global('nodelist')
     fp = open(nodeinit_filename, 'w')
     for name, node in nodelist.items():
         outputline = '%s %s %s %s %d %d' % (node.ip, node.name, node.uuid, node.mac,\
                                             node.mem_max, node.cpu_max)
         fp.write(outputline + '\n')
     fp.close()
-    print '[%s] Removed node %s' % (time.strftime(ISOTIMEFMT), nodename)
+    print >> center_global.fp_clog, '[%s] Removed node %s' % (time.strftime(ISOTIMEFMT), nodename)
     return 0
 
 
