@@ -46,21 +46,15 @@ class Daemon_Monitor(threading.Thread):
     def run(self):
         self.stopevent = threading.Event()
         ret = self.node.update_perf_info()
-        if ret == -2:
+        if not ret:
             print >> center_global.fp_clog, '[%s] %s is missing' % (time.strftime(ISOTIMEFMT), self.node.name)
-            return ret
-        elif ret == -1:
-            print >> center_global.fp_clog, '[%s] %s is migrated' % (time.strftime(ISOTIMEFMT), self.node.name)
             return ret
         print >> center_global.fp_clog, '[%s] Monitor thread of %s started' % (time.strftime(ISOTIMEFMT), self.node.ip)
         while not self.stopevent.isSet( ):
 
             ret = self.node.update_perf_info()
             #exceptions
-            if ret == -2:
-                print >> center_global.fp_clog, '[%s] %s is missing' % (time.strftime(ISOTIMEFMT), self.node.name)
-                return ret
-            elif ret == -1:
+            if not ret:
                 print >> center_global.fp_clog, '[%s] %s is missing' % (time.strftime(ISOTIMEFMT), self.node.name)
                 return ret
             time.sleep(self.interval)
