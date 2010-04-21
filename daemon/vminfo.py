@@ -242,12 +242,13 @@ def del_vm(vmname):
     print >> daemon_global.fp_dlog, daemon_global.syb_sep
     return 0
 
-def do_migrate(vmname, destip, destport):
+def do_migrate(vmname, dest):
+    """dest is a tuple of destination ip and port"""
     print >> daemon_global.fp_dlog, daemon_global.syb_sep
     #set status to migrating and stop monitoring
-    writeLog('Mirgrating ' + vmname + ' to ' + destip)
+#    writeLog('Mirgrating ' + vmname + ' to ' + destip)
     print >> daemon_global.fp_dlog, '[%s] Migrating %s %d' % (time.strftime(ISOTIMEFMT),\
-        vmname, destip, destport)
+        vmname, dest[0], dest[1])
     vm = VMlist[vmname]
     #stop adjust model
 
@@ -263,12 +264,12 @@ def do_migrate(vmname, destip, destport):
 #    vm.status = -1
 #    vm.stop()
     #call migrate
-    cmdline = 'xm migrate -l %s %s' % (vmname, destip)
+    cmdline = 'xm migrate -l %s %s' % (vmname, dest[0])
     print daemon_global.fp_dlog, '[%s] %s' % (time.strftime(ISOTIMEFMT), cmdline)
     ret = os.system(cmdline)
     if ret:
         #when failed return error
-        print daemon_global.fp_dlog, '[%s] Failed when migrating %s to %s' % (vmname, destip)
+        print daemon_global.fp_dlog, '[%s] Failed when migrating %s to %s' % (vmname, dest[0])
         vm.status = -2
     #stop vminfo
     vm.stop()
@@ -282,7 +283,7 @@ def do_migrate(vmname, destip, destport):
     vminfo['mem'] = vm.max_mem
     vminfo['vcpu'] = vm.max_vcpu
     #use directly transfer when has key
-    srv_loc = 'http://%s:%d' % (destip, destport)
+    srv_loc = 'http://%s:%d' % dest
     service = xmlrpclib.ServerProxy(srv_loc)
     try:
         service.start_new_vm(vminfo)

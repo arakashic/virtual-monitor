@@ -125,6 +125,14 @@ def get_vm_runtime_info():
         vm_rt_info.append(rt_info)
     return vm_rt_info
 
+def center_sign(ip, port):
+    daemon_global.set_global('center', (ip, port))
+    return True
+
+def center_unsign():
+    return daemon_global.del_global('center')
+
+
 
 #XMLRPC server
 def get_ip_address(ifname='eth0'):
@@ -160,6 +168,8 @@ def start_daemon_server(port=51000, logfilename=''):
     server.register_function(get_vm_status, 'get_vm_status')
     server.register_function(get_vm_runtime_info, 'get_vm_runtime_info')
     server.register_function(daemon_agent.get_perf_info, 'get_perf_info')
+    server.register_function(center_sign, 'center_sign')
+    server.register_function(center_unsign, 'center_unsign')
     try:
         print >> daemon_global.fp_dlog, 'Starting daemon server...'
         server.serve_forever()
