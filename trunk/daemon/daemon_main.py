@@ -29,7 +29,7 @@ def sigint_handler(signum, frame):
     daemon_global.cleanup_exit()
     print >> daemon_global.fp_dlog, 'catched interrupt signal!'
 
-def main():
+def main(argv):
     signal.signal(signal.SIGINT, sigint_handler)
 #    daemon_global.start_daemon_log()
     daemon_global.global_init()
@@ -114,8 +114,6 @@ if __name__ == "__main__":
     shortopts = 'adlmsp:'
 #    longopts = ['hadoop-test-mode', 'start-agent', 'stop-agent', 'test']
     test = '-a -d -m test -m -p'
-    global opts
-    global argv
     try:
         opts, argv = getopt.getopt(sys.argv[1:], shortopts)
     except getopt.GetoptError, err:
@@ -139,4 +137,4 @@ if __name__ == "__main__":
     print daemon_global.get_global('is_daemon_log')
     if daemon_global.get_global('is_daemonized') == True:
         daemonize.daemonize()
-    main()
+    main(argv)
