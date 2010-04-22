@@ -11,6 +11,9 @@ import signal
 
 import daemonize
 import center_global, comm_service
+import nodeinfo
+import monitor
+import cluster_resource
 
 ISOTIMEFMT='%Y-%m-%d %X'
 
@@ -28,6 +31,14 @@ def main(argv):
     center_global.global_init()
     comm_service.start_center()
     comm_service.start_monitor()
+#    monitor.start_resource_assessor()
+    for name, node in nodeinfo.nodelist.items():
+        print node, node.ip
+#    res = cluster_resource.NodeResourceAssessor()
+#    print 'sleep 10'
+#    time.sleep(10)
+#    res.update()
+#    res.output()
     time.sleep(1000)
     center_global.cleanup_exit()
 

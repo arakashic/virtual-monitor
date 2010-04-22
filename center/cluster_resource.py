@@ -4,12 +4,14 @@
 __author__="Yanfei Guo"
 __date__ ="$Apr 21, 2010 11:18:47 AM$"
 
-
+import sys, time
 
 import nodeinfo
 import center_global
 
 ISOTIMEFMT='%Y-%m-%d %X'
+
+fp_reslog = center_global.fp_clog
 
 class NodeResourceScore():
     """
@@ -32,11 +34,11 @@ class NodeResourceAssessor():
     """
     def __init__(self):
         self.nodelist = nodeinfo.nodelist
-        self.node_alive = [node.status == 1 for node in self.nodelist]
+        self.node_alive = [node.status == 1 for name, node in self.nodelist.items()]
         #sorted nodes
-        self.list_cpu = [node for node in self.nodelist]
-        self.list_mem = [node for node in self.nodelist]
-        self.list_iowait = [node for node in self.nodelist]
+        self.list_cpu = [node for name, node in self.nodelist.items()]
+        self.list_mem = [node for name, node in self.nodelist.items()]
+        self.list_iowait = [node for name, node in self.nodelist.items()]
 
     def update(self):
         self.list_cpu.sort(\
@@ -46,9 +48,28 @@ class NodeResourceAssessor():
             lambda x, y: \
                 cmp((x.perf_info.mem_total - x.perf_info.mem_used),\
                     (y.perf_info.mem_total - y.perf_info.mem_used)))
+        #iowait less first
         self.list_iowait.sort(\
             lambda x, y: \
                 cmp(x.perf_info.avg_cpu_iowait_rate(), y.perf_info.avg_cpu_iowait_rate()))
+        return True
+
+    def get_max_free_cpu(self):
+        return (self.list_cpu[0].ip, self.list_cpu[0].port)
+
+    def get_max_free_mem(self):
+        return (self.list_mem[0].ip, self.list_mem[0].port)
+
+    def get_max_free_io(self):
+        return (self.list_iowait[0].ip, self.list_iowait[0].port)
+
+    def output(self):
+        print >> fp_reslog, center_global.syb_sep
+        print >> fp_reslog, '[%s] Resource lists:' % time.strftime(ISOTIMEFMT)
+        print >> fp_reslog, '\tCPU: %s' % str(self.list_cpu)
+        print >> fp_reslog, '\tMEM: %s' % str(self.list_mem)
+        print >> fp_reslog, '\tIOWAIT: %s' % str(self.list_iowait)
+#        print >> fp_reslog, center_global.syb_sep
 
 if __name__ == "__main__":
     print "Hello World";
