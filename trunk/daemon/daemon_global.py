@@ -4,9 +4,11 @@
 __author__="Yanfei"
 __date__ ="$Mar 22, 2010 5:32:37 PM$"
 
-import os, sys
+import os, sys, time
 import re
-#import socket, struct, fcntl
+import socket, struct, fcntl
+
+ISOTIMEFMT='%Y-%m-%d %X'
 
 param_global = {'debug':0,\
                 'data_dir':'data',\
@@ -88,7 +90,7 @@ def global_init():
     read_daemon_config()
     
     start_daemon_log()
-    print >> fp_dlog, '===========================<<Daemon Started>>==========================='
+    print >> fp_dlog, '[%s] =======<<Daemon Started>>===========================' % time.strftime(ISOTIMEFMT)
     print >> fp_dlog, param_global
 #    print >> fp_dlog, 'test'
 #    try:
@@ -103,7 +105,7 @@ def global_init():
         pass
 
 def cleanup_exit():
-    print >> fp_dlog, '===========================<<Daemon Exited>>============================'
+    print >> fp_dlog, '[%s] =======<<Daemon Exited>>============================' % time.strftime(ISOTIMEFMT)
     stop_daemon_log()
     print 'exit'
     os._exit(0)
