@@ -31,6 +31,7 @@ def sigint_handler(signum, frame):
 
 def main(argv):
     signal.signal(signal.SIGINT, sigint_handler)
+    signal.signal(signal.SIGTERM, sigint_handler)
 #    daemon_global.start_daemon_log()
     daemon_global.global_init()
     if len(argv) == 0:
@@ -119,8 +120,8 @@ if __name__ == "__main__":
     except getopt.GetoptError, err:
         print str(err)
         sys.exit(2)
-    print opts
-    print argv
+#    print opts
+#    print argv
     for o, a in opts:
         if o == '-d':
             daemon_global.set_global('is_daemonized', True)
@@ -131,10 +132,10 @@ if __name__ == "__main__":
         elif o == '-l':
             daemon_global.set_global('is_daemon_log', True)
             
-    print daemon_global.get_global('is_daemonized')
-    print daemon_global.get_global('is_adjust')
-    print daemon_global.get_global('is_monitor')
-    print daemon_global.get_global('is_daemon_log')
+#    print daemon_global.get_global('is_daemonized')
+#    print daemon_global.get_global('is_adjust')
+#    print daemon_global.get_global('is_monitor')
+#    print daemon_global.get_global('is_daemon_log')
     if daemon_global.get_global('is_daemonized') == True:
         daemonize.daemonize()
     main(argv)

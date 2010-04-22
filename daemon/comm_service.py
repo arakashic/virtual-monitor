@@ -20,7 +20,10 @@ def stop_daemon():
     print >> daemon_global.fp_dlog, '[%s] Stopping daemon ' % time.strftime(ISOTIMEFMT)
     stop_monitor()
     stop_vminfo()
-    server.server_close()
+    try:
+        server.server_close()
+    except:
+        pass
     daemon_global.cleanup_exit()
 
 def stop_monitor():
@@ -163,8 +166,8 @@ def start_daemon_server(port=51000, logfilename=''):
     server.register_function(stop_monitor, 'stop_monitor')
     server.register_function(stop_vminfo, 'stop_vminfo')
     server.register_function(update_vmlist_file, 'update_vmlist_file')
-    server.register_function(add_vm, 'add_vm')
-    server.register_function(del_vm, 'del_vm')
+    server.register_function(start_new_vm, 'start_new_vm')
+#    server.register_function(del_vm, 'del_vm')
     server.register_function(get_vm_status, 'get_vm_status')
     server.register_function(get_vm_runtime_info, 'get_vm_runtime_info')
     server.register_function(daemon_agent.get_perf_info, 'get_perf_info')
