@@ -131,6 +131,8 @@ def init_nodelist_from_file():
     fp = open(filename, 'r')
     lines = fp.readlines()
     fp.close()
+    print >> center_global.fp_clog, center_global.syb_sep
+    print >> center_global.fp_clog, 'Initial VM info object'
     for line in lines:
         if line[0] == '#':
             continue
@@ -142,6 +144,7 @@ def init_nodelist_from_file():
 
 def send_and_start_daemon():
     for name, node in nodelist.items():
+        print >> center_global.fp_clog, center_global.syb_sep
         print >> center_global.fp_clog, '[%s] Starting node daemon on %s' %(time.strftime(ISOTIMEFMT), node.ip)
         cmdline = 'scp -r daemon %s:/root' % node.ip
         print >> center_global.fp_clog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
@@ -149,6 +152,7 @@ def send_and_start_daemon():
         cmdline = 'ssh %s python /root/daemon/daemon_main.py -dl server' % node.ip
         print >> center_global.fp_clog, '[%s] %s' %(time.strftime(ISOTIMEFMT), cmdline)
         os.system(cmdline)
+    print >> center_global.fp_clog, center_global.syb_sep
 
 def init_vmlist_on_node():
     vm_nodelist = center_global.get_global('vm-nodelist')
@@ -173,17 +177,23 @@ def init_vmlist_on_node():
 def start_all():
     for name, node in nodelist.items():
         #must use node.startlog() to make sure data dir is created
-        node.startlog()
+#        node.startlog()
+        print >> center_global.fp_clog, '[%s] Daemon Agent log of %s started' % (time.strftime(ISOTIMEFMT), name)
         node.start()
 
 def stop_all():
     for name, node in nodelist.items():
+        print >> center_global.fp_clog, center_global.syb_sep
+        print >> center_global.fp_clog, '[%s] Stopping Daemon agent on %s' % (time.strftime(ISOTIMEFMT), name)
         node.stop()
-        node.stoplog()
+#        node.stoplog()
+        print >> center_global.fp_clog, '[%s] Daemon Agent log of %s stopped' % (time.strftime(ISOTIMEFMT), name)
         try:
             node.service.stop_daemon()
         except:
             pass
+        print >> center_global.fp_clog, '[%s] Daemon on %s stopped' % (time.strftime(ISOTIMEFMT), name)
+    print >> center_global.fp_clog, center_global.syb_sep
 
 def add_node(nodeinfo):
     nodeinit_filename = center_global.get_global('nodelist')

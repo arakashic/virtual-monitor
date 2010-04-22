@@ -4,9 +4,11 @@
 __author__="Yanfei"
 __date__ ="$Mar 22, 2010 5:32:37 PM$"
 
-import os, sys
+import os, sys, time
 import re
 import socket, struct, fcntl
+
+ISOTIMEFMT='%Y-%m-%d %X'
 
 param_global = {'debug':0,\
                 'data_dir':'data',\
@@ -75,7 +77,7 @@ def start_center_log():
 
 def stop_center_log():
     global fp_clog
-    if fp_clog == sys.stdout
+    if fp_clog == sys.stdout:
         pass
     else:
         fp_clog.close()
@@ -88,7 +90,7 @@ def global_init():
     read_center_config()
     
     start_center_log()
-    print >> fp_clog, '===========================<<Center Started>>==========================='
+    print >> fp_clog, '[%s] =======<<Center Started>>===========================' % time.strftime(ISOTIMEFMT)
     print >> fp_clog, param_global
 #    try:
 #        param_global['pm_ip'] = get_ip_address()
@@ -103,7 +105,7 @@ def global_init():
 
 
 def cleanup_exit():
-    print >> fp_clog, '===========================<<Center Exited>>============================'
+    print >> fp_clog, '[%s] =======<<Center Exited>>============================' % time.strftime(ISOTIMEFMT)
     stop_center_log()
     print 'exit'
     os._exit(0)
