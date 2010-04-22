@@ -20,18 +20,18 @@ def read_diskstat(path = '/proc/diskstats'):
     for count in range(0, len(lines)-1):
         
         line = lines[count].split()   
-        disk_info = {'major' : int(line[0]), 'minor' : int(line[1]),
+        disk_info = {'major' : long(line[0]), 'minor' : long(line[1]),
                     'label' : line[2],
-                    'reads_completed' : int(line[3]),
-                    'reads_merged':int(line[4]),
-                    'sectors_read' : int(line[5]),
-                    'milliseconds_reading' : int(line[6]),
-                    'writes_completed' : int(line[7]),
-                    'writes_merged':int(line[8]), 'sectors_written' : int(line[9]),
-                    'milliseconds_writing' : int(line[10]),
-                    'ios_in_progress' :int(line[11]),
-                    'milliseconds_io' : int(line[12]),
-                    'weighted_milliseconds_io' : int(line[13]) }
+                    'reads_completed' : long(line[3]),
+                    'reads_merged':long(line[4]),
+                    'sectors_read' : long(line[5]),
+                    'milliseconds_reading' : long(line[6]),
+                    'writes_completed' : long(line[7]),
+                    'writes_merged':long(line[8]), 'sectors_written' : long(line[9]),
+                    'milliseconds_writing' : long(line[10]),
+                    'ios_in_progress' :long(line[11]),
+                    'milliseconds_io' : long(line[12]),
+                    'weighted_milliseconds_io' : long(line[13]) }
         diskstat_by_label.append(disk_info)
         for key in diskstat_overall.keys():
             if not key in ['label','major','minor']:
