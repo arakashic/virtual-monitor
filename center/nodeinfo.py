@@ -177,7 +177,7 @@ def init_vmlist_on_node():
 def start_all():
     for name, node in nodelist.items():
         #must use node.startlog() to make sure data dir is created
-#        node.startlog()
+        node.startlog()
         print >> center_global.fp_clog, '[%s] Daemon Agent log of %s started' % (time.strftime(ISOTIMEFMT), name)
         node.start()
 
@@ -186,7 +186,7 @@ def stop_all():
         print >> center_global.fp_clog, center_global.syb_sep
         print >> center_global.fp_clog, '[%s] Stopping Daemon agent on %s' % (time.strftime(ISOTIMEFMT), name)
         node.stop()
-#        node.stoplog()
+        node.stoplog()
         print >> center_global.fp_clog, '[%s] Daemon Agent log of %s stopped' % (time.strftime(ISOTIMEFMT), name)
         try:
             node.service.stop_daemon()
