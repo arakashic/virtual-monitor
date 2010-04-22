@@ -19,13 +19,13 @@ def read_netstat(path = '/proc/net/dev'):
         
         line = lines[count].split()   
         dev_info = {'if_name' : line[0],
-                'recv_bytes' : int(line[1]), 'recv_packets' : int(line[2]),
-                'recv_drop' : int(line[3]), 'recv_fifo' : int(line[4]),
-                'recv_frame' : int(line[5]), 'recv_compressed' : int(line[6]),
-                'multicast' : int(line[7]), 'trans_bytes' : int(line[8]),
-                'trans_packets' : int(line[9]), 'trans_drop' : int(line[10]),
-                'trans_fifo' : int(line[11]), 'trans_frame' : int(line[12]),
-                'trans_compressed' : int(line[13]) }
+                'recv_bytes' : long(line[1]), 'recv_packets' : long(line[2]),
+                'recv_drop' : long(line[3]), 'recv_fifo' : long(line[4]),
+                'recv_frame' : long(line[5]), 'recv_compressed' : long(line[6]),
+                'multicast' : long(line[7]), 'trans_bytes' : long(line[8]),
+                'trans_packets' : long(line[9]), 'trans_drop' : long(line[10]),
+                'trans_fifo' : long(line[11]), 'trans_frame' : long(line[12]),
+                'trans_compressed' : long(line[13]) }
         netstat_by_interface.append(dev_info)
         for key in netstat_overall.keys():
             if not key == 'if_name':
