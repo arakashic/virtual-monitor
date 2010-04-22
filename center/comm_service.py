@@ -16,9 +16,12 @@ ISOTIMEFMT='%Y-%m-%d %X'
 def stop_center():
     stop_monitor()
     stop_nodeinfo()
-    print >> center_global.fp_clog, '[%s] Stopping daemon' % time.strftime(ISOTIMEFMT)
-    server.server_close()
-    sys.exit()
+    print >> center_global.fp_clog, '[%s] Stopping center' % time.strftime(ISOTIMEFMT)
+    try:
+        server.server_close()
+    except:
+        pass
+    center_global.cleanup_exit()
 
 def stop_monitor():
     try:
@@ -43,7 +46,7 @@ def start_center():
 #    monitor.start_daemon_monitor(nodeinfo.nodelist)
     #dispatch vmlists on nodes
     time.sleep(10)
-    nodeinfo.init_vmlist_on_node()
+#    nodeinfo.init_vmlist_on_node()
     return True
 
 #def start_monitor():
@@ -57,7 +60,7 @@ def start_center():
 #    except:
 #        print >> center_global.fp_clog, '[%s] Cannot update nodelist: open file failed' % time.strftime(ISOTIMEFMT)
 #        print >> center_global.fp_clog, '[%s] Daemon terminated' % time.strftime(ISOTIMEFMT)
-#        sys.exit()
+#        center_global.cleanup_exit()
 #    #update lines
 #    for line in nodelist_lines:
 #        fp.write(line)
