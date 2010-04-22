@@ -1,3 +1,4 @@
+import cluster_resource
 # To change this template, choose Tools | Templates
 # and open the template in the editor.
 
@@ -9,6 +10,7 @@ import threading
 
 import nodeinfo
 import center_global
+import cluster_resource
 
 ISOTIMEFMT='%Y-%m-%d %X'
 
@@ -66,6 +68,34 @@ class Daemon_Monitor(threading.Thread):
         self.stopevent.set()
         threading.Thread.join(self, timeout)
 
+class ResourceAssessor_Thread(threading.Thread):
+    def __init__(self, res_assessor, interval=5):
+        threading.Thread.__init__(self)
+        self.res_assessor = res_assessor
+        self.interval = interval
+
+        def run(self):
+            self.stopevent = threading.Event()
+            ret = self.res_assessor.update()
+            if not ret:
+                print >> center_global.fp_clog, '[%s] Resource Assessor Error' % time.strftime(ISOTIMEFMT)
+                return ret
+            print >> center_global.fp_clog, '[%s] 2Resource Assessor started' % time.strftime(ISOTIMEFMT)
+            while not self.stopevent.isSet():
+                ret = self.res_assessor.update()
+                self.res_assessor.output()
+                if not ret:
+                    print >> center_global.fp_clog, '[%s] Resource Assessor Error' % time.strftime(ISOTIMEFMT)
+                    return ret
+                time.sleep(self.interval)
+            print >> center_global.fp_clog, '[%s] Resource Assessor stopped' % time.strftime(ISOTIMEFMT)
+            return 0
+
+        def join(self, timeout=None):
+            self.stopevent.set()
+            threading.Thread.join(self.timeout)
+            
+
 threadlist = {}
 center_global.set_global('localthread', threadlist)
 
@@ -113,6 +143,23 @@ def stop_daemon_monitor_s(nodename):
     thread.join()
     del threadlist[nodename]
     print >> center_global.fp_clog, '[%s] Monitor thread for %s stopped' % (time.strftime(ISOTIMEFMT), nodename)
+
+def start_resource_assessor():
+    res_assessor = cluster_resource.NodeResourceAssessor()
+    center_global.set_global('res_assessor', res_assessor)
+    thread = ResourceAssessor_Thread(res_assessor)
+    thread.setDaemon(True)
+    thread.start()
+    threadlist['res_assessor'] = thread
+    print >> center_global.fp_clog, '[%s] Resource Assessor started' % time.strftime(ISOTIMEFMT)
+
+def stop_resource_assessor():
+    if not threadlist.has_key('res_assessor'):
+        return True
+    thread = threadlist['res_assessor']
+    thread.join()
+    del threadlist['res_assessor']
+    print >> center_global.fp_clog, '[%s] Resource Assessor stopped' % time.strftime(ISOTIMEFMT)
 
 
 if __name__ == "__main__":

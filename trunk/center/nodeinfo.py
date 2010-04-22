@@ -32,6 +32,7 @@ class Nodeinfo:
         self.perf_info = node_perfinfo.NodePerfInfo(mem_max)
         self.mem_max = mem_max
         self.cpu_max = cpu_max
+        self.port = 51000
         #set log output to stdout
         self.fp_log = sys.stdout
         self.fp_raw = sys.stdout
