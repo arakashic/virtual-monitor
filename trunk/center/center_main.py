@@ -34,11 +34,11 @@ def main(argv):
 #    monitor.start_resource_assessor()
     for name, node in nodeinfo.nodelist.items():
         print node, node.ip
-#    res = cluster_resource.NodeResourceAssessor()
-#    print 'sleep 10'
-#    time.sleep(10)
-#    res.update()
-#    res.output()
+    res = cluster_resource.NodeResourceAssessor()
+    print 'sleep 10'
+    time.sleep(10)
+    res.update()
+    res.output()
     time.sleep(1000)
     center_global.cleanup_exit()
 
