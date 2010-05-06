@@ -21,15 +21,29 @@ body {
     background-color: #ffffcc;
 }
 
-daemon_title {
+td {
+    vertical-align: top;
+}
+
+h1 {
     font-family: Arial,Helvetica,sans-serif;
     font-weight: bold;
     font-size: 24px;
     font-style: normal;
 }
 
-div#daemonconfig {
-    font-weight: bolder;
+/*div#daemonconfig {
+    float: left;
+}
+
+div#vmlist {
+    float: right;
+}*/
+
+div#daemonconfig h1, div#vmlist h1, div#vmperflist h1, div#threadlist h1 {
+    font-weight: bold;
+    font-size: 20px;
+    font-family: Arial,Helvetica,sans-serif;
 }
 
 div#daemonconfig table {
@@ -43,4 +57,31 @@ div#daemonconfig td#col1 {
 
 div#daemonconfig td#col3 {
     text-align: right;
+}
+
+/*div#vmlist td, th {
+    border-bottom-style : groove;
+    padding-bottom : 4px;
+    padding-top : 4px;       
+    border-bottom-width: 30%;
+}*/
+
+div#vmlist td#col1 {
+    vertical-align: top;
+    text-align: left;
+    font-weight: bold;
+    /*border-bottom-style: groove;
+    border-bottom-width: 30%;*/
+}
+
+div#vmperflist td#col1 {
+    vertical-align: top;
+    text-align: left;
+    font-weight: bold;
+}
+
+div#threadlist td#col1 {
+    vertical-align: top;
+    text-align: left;
+    font-weight: bold;
 }
