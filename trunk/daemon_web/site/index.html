@@ -4,22 +4,81 @@ and open the template in the editor.
 -->
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link rel="stylesheet" type="text/css" href="./mainstyle.css">
-    <title>VM Daemon on 192.168.0.1</title>
-  </head>
-  <body>
-    VM Daemon on 192.168.0.1
-    <div id="d">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="./mainstyle.css">
+        <title>VM Daemon on 192.168.0.1</title>
+    </head>
+    <body>
+        <h1> VM Daemon on 192.168.0.1 </h1>
+        <hr>
         <table>
             <tbody>
-                <tr> <td id="col1"> Started: </td><td> Mon Apr 26 15:24:06 CST 2010</td></td>
-                <tr> <td id="col1"> Version: </td><td> 0.20.2, r911707</td></tr>
-                <tr> <td id="col1"> Compiled: </td><td> Fri Feb 19 08:07:34 UTC 2010 by chrisdo</td></tr>
-                <tr> <td id="col1"> Upgrades: </td><td> There are no upgrades in progress.</td></tr>
+                <tr>
+                    <td>
+                        <div id="daemonconfig">
+                            <h1>Daemon Config</h1>
+                            <table>
+                                <tbody>
+                                    <tr> <td id="col1"> Started: </td><td id="col3"> Mon Apr 26 15:24:06 CST 2010</td></tr>
+                                    <tr> <td id="col1"> Version: </td><td id="col3"> 0.20.2, r911707</td></tr>
+                                    <tr> <td id="col1"> Compiled: </td><td id="col3"> Fri Feb 19 08:07:34 UTC 2010 by chrisdo</td></tr>
+                                    <tr> <td id="col1"> Upgrades: </td><td id="col3"> There are no upgrades in progress.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                    <td>
+                        <div id="vmlist">
+                            <h1>VM list</h1>
+                            <table>
+                                <tbody>
+                                    <tr> <td id="col1"> Name </td>
+                                        <td id="col1"> IP </td>
+                                        <td id="col1"> Status </td>
+                                        <td id="col1"> Memory </td>
+                                        <td id="col1"> VCPU </td>
+                                        <td id="col1"> UUID </td>
+                                        <td id="col1"> MAC Address </td></tr>
+                                
+                                    <tr>
+                                        <td> 1 </td>
+                                        <td> 2 </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
-    </div>
-  </body>
+        <hr>
+        <div id="vmperflist">
+            <h1>VM Performance Statistics</h1>
+            <table>
+                <tbody>
+                    <tr> <td id="col1"> Name </td>
+                        <td id="col1"> CPU % </td>
+                        <td id="col1"> IOWait % </td>
+                        <td id="col1"> Memory % </td>
+                        <td id="col1"> Pagefault Rate </td>
+                        <td id="col1"> Disk Read Bytes (KB) </td>
+                        <td id="col1"> Disk Write Bytes (KB) </td>
+                        <td id="col1"> Net Send Bytes (KB) </td>
+                        <td id="col1"> Net Receive Bytes (KB) </td></tr>
+                </tbody>
+            </table>
+        </div>
+        <hr>
+        <div id="threadlist">
+            <h1>Thread List</h1>
+            <table>
+                <tbody>
+                    <tr> <td id="col1"> ID </td>
+                        <td id="col1"> Name </td>
+                        <td id="col1"> Type </td></tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
 </html>
