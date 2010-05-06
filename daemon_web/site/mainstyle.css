@@ -1,0 +1,46 @@
+/* 
+    Document   : mainstyle
+    Created on : 2010-5-6, 11:02:15
+    Author     : flyxian
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+root { 
+    display: block;
+    font-family: Arial,Helvetica,sans-serif;
+}
+
+body {
+
+    background-color: #ffffcc;
+}
+
+daemon_title {
+    font-family: Arial,Helvetica,sans-serif;
+    font-weight: bold;
+    font-size: 24px;
+    font-style: normal;
+}
+
+div#daemonconfig {
+    font-weight: bolder;
+}
+
+div#daemonconfig table {
+    white-space: pre;
+}
+
+div#daemonconfig td#col1 {
+    vertical-align: top;
+    font-weight: bold;
+}
+
+div#daemonconfig td#col3 {
+    text-align: right;
+}
