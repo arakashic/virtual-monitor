@@ -6,7 +6,7 @@ and open the template in the editor.
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <link rel="stylesheet" type="text/css" href="./mainstyle.css">
+        <link rel="stylesheet" type="text/css" href="/site/mainstyle.css">
         <title>VM Daemon on 192.168.0.1</title>
     </head>
     <body>
@@ -41,10 +41,18 @@ and open the template in the editor.
                                         <td id="col1"> UUID </td>
                                         <td id="col1"> MAC Address </td></tr>
                                 
-                                    <tr>
-                                        <td> 1 </td>
-                                        <td> 2 </td>
-                                    </tr>
+                                        {% for vm in vmlist %}
+                                        <tr>
+                                            <td> {{ vm.name }} </td>
+                                            <td> {{ vm.ip }} </td>
+                                            <td> {{ vm.status }} </td>
+                                            <td> {{ vm.mem }} </td>
+                                            <td> {{ vm.vcpu }} </td>
+                                            <td> {{ vm.uuid }} </td>
+                                            <td> {{ vm.mac }} </td>
+                                        </tr>
+                                        {% endfor %}
+
                                 </tbody>
                             </table>
                         </div>
