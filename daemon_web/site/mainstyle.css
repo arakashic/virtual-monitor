@@ -74,6 +74,12 @@ div#vmlist td#col1 {
     border-bottom-width: 30%;*/
 }
 
+div#vmlist td {
+    vertical-align: top;
+    text-align: left;
+    padding-left: 20px;
+}
+
 div#vmperflist td#col1 {
     vertical-align: top;
     text-align: left;
