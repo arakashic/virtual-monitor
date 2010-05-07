@@ -70,6 +70,7 @@ div#vmlist td#col1 {
     vertical-align: top;
     text-align: left;
     font-weight: bold;
+    padding-left: 10px;
     /*border-bottom-style: groove;
     border-bottom-width: 30%;*/
 }
@@ -84,6 +85,13 @@ div#vmperflist td#col1 {
     vertical-align: top;
     text-align: left;
     font-weight: bold;
+    padding-left: 10px;
+}
+
+div#vmperflist td {
+    vertical-align: top;
+    text-align: left;
+    padding-left: 20px;
 }
 
 div#threadlist td#col1 {
