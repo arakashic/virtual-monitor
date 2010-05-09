@@ -20,10 +20,13 @@ and open the template in the editor.
                             <h1>Daemon Config</h1>
                             <table>
                                 <tbody>
-                                    <tr> <td id="col1"> Started: </td><td id="col3"> Mon Apr 26 15:24:06 CST 2010</td></tr>
-                                    <tr> <td id="col1"> Version: </td><td id="col3"> 0.20.2, r911707</td></tr>
-                                    <tr> <td id="col1"> Compiled: </td><td id="col3"> Fri Feb 19 08:07:34 UTC 2010 by chrisdo</td></tr>
-                                    <tr> <td id="col1"> Upgrades: </td><td id="col3"> There are no upgrades in progress.</td></tr>
+                                    <tr> <td id="col1"> Node IP: </td><td id="col3"> {{ daemoninfo.nodeip }} </td></tr>
+                                    <tr> <td id="col1"> Node Name: </td><td id="col3"> {{ daemoninfo.nodename }} </td></tr>
+                                    <tr> <td id="col1"> Started: </td><td id="col3"> {{ daemoninfo.nodestarttime }} </td></tr>
+                                    <tr> <td id="col1"> VM Running / Configured: </td><td id="col3"> 15 / 20 </td></tr>
+                                    <tr> <td id="col1"> Data DIR: </td><td id="col3"> {{ daemoninfo.datadir }} </td></tr>
+                                    <tr> <td id="col1"> Daemon Log: </td><td id="col3"> {{ daemoninfo.logfilename }} </td></tr>
+                                    <tr> <td id="col1"> Console Parameters: </td><td id="col3"> {{ daemoninfo.argv }} </td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -70,10 +73,8 @@ and open the template in the editor.
                         <td id="col1"> IOWait% (10s avg) </td>
                         <td id="col1"> Memory% (10s avg) </td>
                         <td id="col1"> Pagefault Rate (10s avg) </td>
-                        <td id="col1"> Disk Rd (KB) </td>
-                        <td id="col1"> Disk Wr (KB) </td>
-                        <td id="col1"> Net Send (KB) </td>
-                        <td id="col1"> Net Recv (KB) </td></tr>
+                        <td id="col1"> Disk Rd / Wr (KB) </td>
+                        <td id="col1"> Net Send / Recv (KB) </td></tr>
 
                     {% for vmperf in vmperflist %}
                     <tr>
@@ -82,10 +83,8 @@ and open the template in the editor.
                         <td> {{ vmperf.iowait }} ( {{vmperf.iowait_avg}} ) </td>
                         <td> {{ vmperf.mem }} ( {{ vmperf.mem_avg }} ) </td>
                         <td> {{ vmperf.pf }} ( {{ vmperf.pf_avg }} ) </td>
-                        <td> {{ vmperf.diskrd }} </td>
-                        <td> {{ vmperf.diskwr }} </td>
-                        <td> {{ vmperf.netsend }} </td>
-                        <td> {{ vmperf.netrecv }} </td></tr>
+                        <td> {{ vmperf.diskrd }} / {{ vmperf.diskwr }} </td>
+                        <td> {{ vmperf.netsend }} / {{ vmperf.netrecv }} </td></tr>
                     {% endfor %}
                 </tbody>
             </table>
