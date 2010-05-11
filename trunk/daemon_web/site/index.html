@@ -6,12 +6,13 @@ and open the template in the editor.
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="Refresh" content="30;URL=/index/">
         <link rel="stylesheet" type="text/css" href="/site/mainstyle.css">
         <title>VM Daemon on 192.168.0.1</title>
     </head>
     <body>
         <h1> VM Daemon on 192.168.0.1 </h1>
-        <hr>
+        <hr />
         <table>
             <tbody>
                 <tr>
@@ -44,7 +45,7 @@ and open the template in the editor.
                                         <td id="col1"> UUID </td>
                                         <td id="col1"> MAC Address </td></tr>
                                 
-                                        {% for vm in vmlist %}
+                                        {% for vm in vmlist|dictsort:"name" %}
                                         <tr>
                                             <td> {{ vm.name }} </td>
                                             <td> {{ vm.ip }} </td>
@@ -63,7 +64,7 @@ and open the template in the editor.
                 </tr>
             </tbody>
         </table>
-        <hr>
+        <hr />
         <div id="vmperflist">
             <h1>VM Performance Statistics</h1>
             <table>
@@ -76,12 +77,12 @@ and open the template in the editor.
                         <td id="col1"> Disk Rd / Wr (KB) </td>
                         <td id="col1"> Net Send / Recv (KB) </td></tr>
 
-                    {% for vmperf in vmperflist %}
+                    {% for vmperf in vmperflist|dictsort:"name" %}
                     <tr>
                         <td> {{ vmperf.name }} </td>
-                        <td> {{ vmperf.cpu }} ( {{ vmperf.cpu_avg }} ) </td>
-                        <td> {{ vmperf.iowait }} ( {{vmperf.iowait_avg}} ) </td>
-                        <td> {{ vmperf.mem }} ( {{ vmperf.mem_avg }} ) </td>
+                        <td> {{ vmperf.cpu|floatformat:1 }} ( {{ vmperf.cpu_avg|floatformat:1 }} ) </td>
+                        <td> {{ vmperf.iowait|floatformat:1 }} ( {{vmperf.iowait_avg|floatformat:1 }} ) </td>
+                        <td> {{ vmperf.mem|floatformat:1 }} ( {{ vmperf.mem_avg|floatformat:1 }} ) </td>
                         <td> {{ vmperf.pf }} ( {{ vmperf.pf_avg }} ) </td>
                         <td> {{ vmperf.diskrd }} / {{ vmperf.diskwr }} </td>
                         <td> {{ vmperf.netsend }} / {{ vmperf.netrecv }} </td></tr>
@@ -89,7 +90,7 @@ and open the template in the editor.
                 </tbody>
             </table>
         </div>
-        <hr>
+        <hr />
         <div id="threadlist">
             <h1>Thread List</h1>
             <table>
@@ -99,6 +100,16 @@ and open the template in the editor.
                         <td id="col1"> Type </td></tr>
                 </tbody>
             </table>
+        </div>
+        <hr />
+        <div id="daemonlog">
+            <h1> Daemon Log </h1>
+            
+            <textarea name="d_log" rows="20" cols="150" readonly="readonly">
+                {% for line in daemonlog %}
+{{ line }}
+                {% endfor %}
+            </textarea>
         </div>
     </body>
 </html>

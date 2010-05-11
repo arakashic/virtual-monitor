@@ -40,7 +40,7 @@ div#vmlist {
     float: right;
 }*/
 
-div#daemonconfig h1, div#vmlist h1, div#vmperflist h1, div#threadlist h1 {
+div#daemonconfig h1, div#vmlist h1, div#vmperflist h1, div#threadlist h1, div#daemonlog h1 {
     font-weight: bold;
     font-size: 20px;
     font-family: Arial,Helvetica,sans-serif;
@@ -98,4 +98,8 @@ div#threadlist td#col1 {
     vertical-align: top;
     text-align: left;
     font-weight: bold;
+}
+
+div#daemonlog textarea {
+    
 }
