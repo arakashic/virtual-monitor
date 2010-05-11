@@ -11,6 +11,7 @@ import SimpleXMLRPCServer
 import monitor, vminfo, daemon_agent
 #from daemon_global import daemon_global.get_global, daemon_global.cleanup_exit, daemon_global.fp_dlog
 import daemon_global
+import web_backend
 
 ISOTIMEFMT='%Y-%m-%d %X'
 
@@ -173,6 +174,11 @@ def start_daemon_server(port=51000, logfilename=''):
     server.register_function(daemon_agent.get_perf_info, 'get_perf_info')
     server.register_function(center_sign, 'center_sign')
     server.register_function(center_unsign, 'center_unsign')
+    if daemon_global.get_global('is_web'):
+        print 'import web'
+        server.register_function(web_backend.get_vmlist, 'get_vmlist')
+        server.register_function(web_backend.get_vmperflist, 'get_vmperflist')
+        server.register_function(web_backend.get_daemonlog, 'get_daemonlog')
     try:
         print >> daemon_global.fp_dlog, 'Starting daemon server...'
         server.serve_forever()

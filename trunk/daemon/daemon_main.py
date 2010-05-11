@@ -92,6 +92,18 @@ def main(argv):
 #        print >> daemon_global.fp_dlog, 'Test System Ready, GO!!!'
 #        print >> daemon_global.fp_dlog, '0 load test for 600 sec'
         thread.start_new_thread(comm_service.server_init,())
+    if argv[0] == 'webserver':
+#        vminfo.init_vmlist_from_file()
+#        vminfo.start_all()
+#        monitor.start_agent_monitor(vminfo.VMlist)
+#        print >> daemon_global.fp_dlog, 'Test System Ready, GO!!!'
+#        print >> daemon_global.fp_dlog, '0 load test for 600 sec'
+        thread.start_new_thread(comm_service.server_init,())
+        vminfo.init_vmlist_from_file()
+        vminfo.start_all()
+        monitor.start_agent_monitor(vminfo.VMlist)
+        print >> daemon_global.fp_dlog, 'Test System Ready, GO!!!'
+        print >> daemon_global.fp_dlog, '0 load test for 600 sec'
         time.sleep(1000)
 
     daemon_global.cleanup_exit()
@@ -109,10 +121,11 @@ if __name__ == "__main__":
     daemon_global.set_global('is_adjust', False)
     daemon_global.set_global('is_monitor', False)
     daemon_global.set_global('is_daemon_log', False)
+    daemon_global.set_global('is_web', False)
 #    if len(sys.argv) == 3 and sys.argv[2] == 'daemon':
 #        daemonize.daemonize()
 #    main()
-    shortopts = 'adlmsp:'
+    shortopts = 'adlmswp:'
 #    longopts = ['hadoop-test-mode', 'start-agent', 'stop-agent', 'test']
     test = '-a -d -m test -m -p'
     try:
@@ -131,6 +144,8 @@ if __name__ == "__main__":
             daemon_global.set_global('is_monitor', True)
         elif o == '-l':
             daemon_global.set_global('is_daemon_log', True)
+        elif o == '-w':
+            daemon_global.set_global('is_web', True)
             
 #    print daemon_global.get_global('is_daemonized')
 #    print daemon_global.get_global('is_adjust')

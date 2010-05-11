@@ -183,6 +183,17 @@ class PerfInfo:
         avg /= count
         return avg
 
+    def avg_mem_ratio(self):
+#        count = len(self.mem_ratio)
+#        if not count:
+#            return 0
+#        avg = 0
+#        for i in self.mem_ratio:
+#            avg += i
+#        avg /= count
+#        return avg
+        return self.mem_ratio
+
     def get_mem_peak_diff(self):
         if len(self.mem_trace) <= 0:
             return 0
