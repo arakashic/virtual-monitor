@@ -27,7 +27,7 @@ vmperflist = [{'name':'cloud1','cpu':80,'cpu_avg':80,'iowait':10,'iowait_avg':10
               {'name':'cloud1','cpu':80,'cpu_avg':80,'iowait':10,'iowait_avg':10,'mem':400,'mem_avg':450,'pf':12000,'pf_avg':13000,'diskrd':1000,'diskwr':500,'netsend':1000,'netrecv':500},\
               {'name':'cloud1','cpu':80,'cpu_avg':80,'iowait':10,'iowait_avg':10,'mem':400,'mem_avg':450,'pf':12000,'pf_avg':13000,'diskrd':1000,'diskwr':500,'netsend':1000,'netrecv':500},\
               {'name':'cloud1','cpu':80,'cpu_avg':80,'iowait':10,'iowait_avg':10,'mem':400,'mem_avg':450,'pf':12000,'pf_avg':13000,'diskrd':1000,'diskwr':500,'netsend':1000,'netrecv':500}]
-          
+
 def index(request):
     content = {'vmlist':vmlist,'vmperflist':vmperflist}
     return render_to_response('./index.html', content)
