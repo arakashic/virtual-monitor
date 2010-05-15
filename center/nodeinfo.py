@@ -14,6 +14,8 @@ import center_global
 
 ISOTIMEFMT='%Y-%m-%d %X'
 
+status_str = ['Stopped', 'Running', 'S3', 'S4', 'Error']
+
 class Nodeinfo:
     """
     node domain info including:
