@@ -8,52 +8,52 @@ and open the template in the editor.
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta http-equiv="Refresh" content="30;URL=/index/">
         <link rel="stylesheet" type="text/css" href="/site/mainstyle.css">
-        <title>VM Daemon on 192.168.0.1</title>
+        <title>VM Center on 192.168.0.1</title>
     </head>
     <body>
-        <h1> VM Daemon on 192.168.0.1 </h1>
+        <h1> VM Center on 192.168.0.1 </h1>
         <hr />
         <table>
             <tbody>
                 <tr>
                     <td>
-                        <div id="daemonconfig">
-                            <h1>Daemon Config</h1>
+                        <div id="centerconfig">
+                            <h1>Center Config</h1>
                             <table>
                                 <tbody>
-                                    <tr> <td id="col1"> Node IP: </td><td id="col3"> {{ daemoninfo.nodeip }} </td></tr>
-                                    <tr> <td id="col1"> Node Name: </td><td id="col3"> {{ daemoninfo.nodename }} </td></tr>
-                                    <tr> <td id="col1"> Started: </td><td id="col3"> {{ daemoninfo.nodestarttime }} </td></tr>
-                                    <tr> <td id="col1"> VM Running / Configured: </td><td id="col3"> 15 / 20 </td></tr>
-                                    <tr> <td id="col1"> Data DIR: </td><td id="col3"> {{ daemoninfo.datadir }} </td></tr>
-                                    <tr> <td id="col1"> Daemon Log: </td><td id="col3"> {{ daemoninfo.logfilename }} </td></tr>
-                                    <tr> <td id="col1"> Console Parameters: </td><td id="col3"> {{ daemoninfo.argv }} </td></tr>
+                                    <tr> <td id="col1"> Center IP: </td><td id="col3"> {{ centerinfo.nodeip }} </td></tr>
+                                    <tr> <td id="col1"> Cluster Name: </td><td id="col3"> {{ centerinfo.nodename }} </td></tr>
+                                    <tr> <td id="col1"> Started: </td><td id="col3"> {{ centerinfo.nodestarttime }} </td></tr>
+                                    <tr> <td id="col1"> Node Running / Configured: </td><td id="col3"> 15 / 20 </td></tr>
+                                    <tr> <td id="col1"> Data DIR: </td><td id="col3"> {{ centerinfo.datadir }} </td></tr>
+                                    <tr> <td id="col1"> Center Log: </td><td id="col3"> {{ centerinfo.logfilename }} </td></tr>
+                                    <tr> <td id="col1"> Console Parameters: </td><td id="col3"> {{ centerinfo.argv }} </td></tr>
                                 </tbody>
                             </table>
                         </div>
                     </td>
                     <td>
-                        <div id="vmlist">
-                            <h1>VM list</h1>
+                        <div id="nodelist">
+                            <h1>Node list</h1>
                             <table>
                                 <tbody>
                                     <tr> <td id="col1"> Name </td>
                                         <td id="col1"> IP </td>
                                         <td id="col1"> Status </td>
+                                        <td id="col1"> VMs </td>
                                         <td id="col1"> Memory (MB) </td>
-                                        <td id="col1"> VCPU </td>
-                                        <td id="col1"> UUID </td>
+                                        <td id="col1"> CPU </td>
                                         <td id="col1"> MAC Address </td></tr>
                                 
-                                        {% for vm in vmlist|dictsort:"name" %}
+                                        {% for node in nodelist|dictsort:"name" %}
                                         <tr>
-                                            <td> {{ vm.name }} </td>
-                                            <td> {{ vm.ip }} </td>
-                                            <td> {{ vm.status }} </td>
-                                            <td> {{ vm.mem }} </td>
-                                            <td> {{ vm.vcpu }} </td>
-                                            <td> {{ vm.uuid }} </td>
-                                            <td> {{ vm.mac }} </td>
+                                            <td> {{ node.name }} </td>
+                                            <td> {{ node.ip }} </td>
+                                            <td> {{ node.status }} </td>
+                                            <td> {{ node.vms }} </td>
+                                            <td> {{ node.mem }} </td>
+                                            <td> {{ node.vcpu }} </td>
+                                            <td> {{ node.mac }} </td>
                                         </tr>
                                         {% endfor %}
 
@@ -65,8 +65,25 @@ and open the template in the editor.
             </tbody>
         </table>
         <hr />
-        <div id="vmperflist">
-            <h1>VM Performance Statistics</h1>
+        <div id="clusterview">
+            <h1> Cluster View </h1>
+            <table>
+                <tbody>
+                    <tr><td id="col1"> Node </td>
+                    <td id="col1"> VM </td></tr>
+
+                    {% for node in nodelist|dictsort:"name" %}
+                    <tr><td> {{ node.name }} </td>
+                        {% for vm in node.vmlist|dictsort:"name" %}
+                        <td> {{ vm.name }} </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div id="nodeperflist">
+            <h1>Node Performance Statistics</h1>
             <table>
                 <tbody>
                     <tr> <td id="col1"> Name </td>
@@ -77,36 +94,25 @@ and open the template in the editor.
                         <td id="col1"> Disk Rd / Wr (KB) </td>
                         <td id="col1"> Net Send / Recv (KB) </td></tr>
 
-                    {% for vmperf in vmperflist|dictsort:"name" %}
+                    {% for nodeperf in nodeperflist|dictsort:"name" %}
                     <tr>
-                        <td> {{ vmperf.name }} </td>
-                        <td> {{ vmperf.cpu|floatformat:1 }} ( {{ vmperf.cpu_avg|floatformat:1 }} ) </td>
-                        <td> {{ vmperf.iowait|floatformat:1 }} ( {{vmperf.iowait_avg|floatformat:1 }} ) </td>
-                        <td> {{ vmperf.mem|floatformat:1 }} ( {{ vmperf.mem_avg|floatformat:1 }} ) </td>
-                        <td> {{ vmperf.pf }} ( {{ vmperf.pf_avg }} ) </td>
-                        <td> {{ vmperf.diskrd }} / {{ vmperf.diskwr }} </td>
-                        <td> {{ vmperf.netsend }} / {{ vmperf.netrecv }} </td></tr>
+                        <td> {{ nodeperf.name }} </td>
+                        <td> {{ nodeperf.cpu|floatformat:1 }} ( {{ nodeperf.cpu_avg|floatformat:1 }} ) </td>
+                        <td> {{ nodeperf.iowait|floatformat:1 }} ( {{nodeperf.iowait_avg|floatformat:1 }} ) </td>
+                        <td> {{ nodeperf.mem|floatformat:1 }} ( {{ nodeperf.mem_avg|floatformat:1 }} ) </td>
+                        <td> {{ nodeperf.pf }} ( {{ nodeperf.pf_avg }} ) </td>
+                        <td> {{ nodeperf.diskrd }} / {{ nodeperf.diskwr }} </td>
+                        <td> {{ nodeperf.netsend }} / {{ nodeperf.netrecv }} </td></tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
         <hr />
-        <div id="threadlist">
-            <h1>Thread List</h1>
-            <table>
-                <tbody>
-                    <tr> <td id="col1"> ID </td>
-                        <td id="col1"> Name </td>
-                        <td id="col1"> Type </td></tr>
-                </tbody>
-            </table>
-        </div>
-        <hr />
-        <div id="daemonlog">
+        <div id="centerlog">
             <h1> Daemon Log </h1>
             
             <textarea name="d_log" rows="20" cols="150" readonly="readonly">
-                {% for line in daemonlog %}
+                {% for line in centerlog %}
 {{ line }}
                 {% endfor %}
             </textarea>
