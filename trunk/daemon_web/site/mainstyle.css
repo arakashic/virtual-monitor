@@ -32,41 +32,41 @@ h1 {
     font-style: normal;
 }
 
-/*div#daemonconfig {
+/*div#centerconfig {
     float: left;
 }
 
-div#vmlist {
+div#nodelist {
     float: right;
 }*/
 
-div#daemonconfig h1, div#vmlist h1, div#vmperflist h1, div#threadlist h1, div#daemonlog h1 {
+div#centerconfig h1, div#nodelist h1, div#clusterview h1, div#nodeperflist h1, div#centerlog h1 {
     font-weight: bold;
     font-size: 20px;
     font-family: Arial,Helvetica,sans-serif;
 }
 
-div#daemonconfig table {
+div#centerconfig table {
     white-space: pre;
 }
 
-div#daemonconfig td#col1 {
+div#centerconfig td#col1 {
     vertical-align: top;
     font-weight: bold;
 }
 
-div#daemonconfig td#col3 {
+div#centerconfig td#col3 {
     text-align: right;
 }
 
-/*div#vmlist td, th {
+/*div#nodelist td, th {
     border-bottom-style : groove;
     padding-bottom : 4px;
     padding-top : 4px;       
     border-bottom-width: 30%;
 }*/
 
-div#vmlist td#col1 {
+div#nodelist td#col1 {
     vertical-align: top;
     text-align: left;
     font-weight: bold;
@@ -75,31 +75,38 @@ div#vmlist td#col1 {
     border-bottom-width: 30%;*/
 }
 
-div#vmlist td {
+div#nodelist td {
     vertical-align: top;
     text-align: left;
     padding-left: 20px;
 }
 
-div#vmperflist td#col1 {
+div#clusterview td#col1 {
     vertical-align: top;
     text-align: left;
     font-weight: bold;
     padding-left: 10px;
 }
 
-div#vmperflist td {
+div#clusterview td {
     vertical-align: top;
     text-align: left;
     padding-left: 20px;
 }
 
-div#threadlist td#col1 {
+div#nodeperflist td#col1 {
     vertical-align: top;
     text-align: left;
     font-weight: bold;
+    padding-left: 10px;
 }
 
-div#daemonlog textarea {
+div#nodeperflist td {
+    vertical-align: top;
+    text-align: left;
+    padding-left: 20px;
+}
+
+div#centerlog textarea {
     
 }
