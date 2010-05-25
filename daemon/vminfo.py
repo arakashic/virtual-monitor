@@ -94,12 +94,13 @@ class VMinfo:
         return True
 
 
-    def stop(self):
+    def stop(self,mig=False):
         if not self.status:
             return True
         try:
             self.status = 0
-            self.service.stop_agent()
+            if not mig:
+                self.service.stop_agent()
             print >> self.fp_log, '[%s] Agent stopped' % time.strftime(ISOTIMEFMT)
         except:
             pass
@@ -249,13 +250,13 @@ def do_migrate(vmname, dest):
     print >> daemon_global.fp_dlog, daemon_global.syb_sep
     #set status to migrating and stop monitoring
 #    writeLog('Mirgrating ' + vmname + ' to ' + destip)
-    print >> daemon_global.fp_dlog, '[%s] Migrating %s %d' % (time.strftime(ISOTIMEFMT),\
+    print >> daemon_global.fp_dlog, '[%s] Migrating %s to %s:%d' % (time.strftime(ISOTIMEFMT),\
         vmname, dest[0], dest[1])
     vm = VMlist[vmname]
     #stop adjust model
 
     #stop monitor thread
-    threadlist = get_global('localthread')
+    threadlist = daemon_global.get_global('localthread')
     try:
         thread = threadlist[vmname]
         thread.join()
@@ -271,10 +272,10 @@ def do_migrate(vmname, dest):
     ret = os.system(cmdline)
     if ret:
         #when failed return error
-        print daemon_global.fp_dlog, '[%s] Failed when migrating %s to %s' % (vmname, dest[0])
+        print daemon_global.fp_dlog, '[%s] Failed when migrating %s to %s' % (time.strftime(ISOTIMEFMT), dest[0])
         vm.status = -2
     #stop vminfo
-    vm.stop()
+    vm.stop(mig=True)
     #when success del current vm and create new one
     print 'done'
     vminfo = {}
@@ -282,8 +283,8 @@ def do_migrate(vmname, dest):
     vminfo['ip'] = vm.ip
     vminfo['uuid'] = vm.uuid
     vminfo['mac'] = vm.mac
-    vminfo['mem'] = vm.max_mem
-    vminfo['vcpu'] = vm.max_vcpu
+    vminfo['mem'] = vm.mem_max
+    vminfo['vcpu'] = vm.vcpu_max
     #use directly transfer when has key
     srv_loc = 'http://%s:%d' % dest
     service = xmlrpclib.ServerProxy(srv_loc)

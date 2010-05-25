@@ -85,6 +85,15 @@ def main(argv):
 #        vminfo.del_VM('cloud1')
     if argv[0] == 'test':
         print >> daemon_global.fp_dlog, 'test mode'
+    if argv[0] == 'migrate_test':
+        vminfo.init_vmlist_from_file()
+        vminfo.start_all()
+        monitor.start_agent_monitor(vminfo.VMlist)
+        print >> daemon_global.fp_dlog, 'Test System Ready, GO!!!'
+        print >> daemon_global.fp_dlog, '30 sec to migrate test'
+        time.sleep(30)
+        vminfo.do_migrate('cloud1', ('192.168.226.14', 51000))
+        time.sleep(500)
     if argv[0] == 'server':
 #        vminfo.init_vmlist_from_file()
 #        vminfo.start_all()
