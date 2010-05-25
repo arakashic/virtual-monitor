@@ -4,11 +4,7 @@
 __author__="Yanfei Guo"
 __date__ ="$May 11, 2010 2:15:28 PM$"
 
-import os, sys, time
-import fcntl, socket, struct
-import SimpleXMLRPCServer
-
-import monitor, vminfo, daemon_agent
+import monitor, vminfo
 import daemon_global
 
 ISOTIMEFMT='%Y-%m-%d %X'
