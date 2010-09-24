@@ -132,7 +132,7 @@ def start_agent(port=8080, logfilename=''):
     server.register_function(stop_agent, 'stop_agent')
     server.register_function(heart_beat, 'heart_beat')
     try:
-        print 'Starting server...'
+        print 'Starting server......'
         server.serve_forever()
     finally:
 	server.server_close()
